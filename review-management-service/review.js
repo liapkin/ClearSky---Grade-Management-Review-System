@@ -1,37 +1,28 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const db = require('./models');
 
 const app = express();
 app.use(bodyParser.json());
 
-let reviews = [];
-let ids =1;
 
-app.post('/reviews/new', (req, res) => {
-    const { gradeId, message } = req.body;
+app.post('/reviews/new',async (req, res) => {
+    try{
+        const { gradeId, message } = req.body;
 
-    const newReview = {
-        id: ids,
-        gradeId: gradeId,
-        requestMessage: message,
-        responseMessage: null,
-        status: "pending",
-        grade: 5,
-        updatedAt: new Date(),
-    };
+        const newReview = await db.reviews.create({
+            grade_id: gradeId,
+            request_message: message,
+            response_message: '',
+            state: 'Pending', // 0 for pending
+        });
 
-    ids += 1;
-    
-    reviews.push(newReview);
+        res.status(201).json({ success: true, data: newReview });
 
-    const response = {
-            reviewId: newReview.id,
-            gradeId: newReview.gradeId,
-            status: newReview.status,
-            requestedAt: newReview.updatedAt
-    };
-
-    res.status(201).json(response);
+  } catch (err) {
+        console.error('Σφάλμα στη δημιουργία review:', err);
+        res.status(500).json({ success: false, error: 'Σφάλμα διακομιστή' });
+  }
 });
 
 
