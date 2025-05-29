@@ -26,25 +26,33 @@ app.post('/reviews/new',async (req, res) => {
 });
 
 
-app.get('/reviews', (req, res) => {
-    const { status, instructorId } = req.query;
-
-    let filteredReviews = [...reviews];
-    
-    if (status) {
-        filteredReviews = filteredReviews.filter(review => review.status === status);
+app.get('/reviews', async (req, res) => {
+    try {
+        const { state, userId, role } = req.query;
+        
+        let whereClause = {};
+        
+        const reviews = await db.reviews.findAll({
+            where: whereClause,
+        });
+        
+        const response = {
+            reviewerList: reviews.map(review => ({
+                reviewId: review.id,
+                gradeId: review.grade_id,
+                state: review.state,
+            }))
+        };
+        
+        res.status(200).json(response);
+        
+    } catch (error) {
+        console.error('Error fetching reviews:', error);
+        res.status(500).json({ 
+            error: 'Internal server error',
+            message: 'Failed to fetch reviews'
+        });
     }
-
-    const response = {
-        reviewerList: filteredReviews.map(review => ({
-            reviewId: review.id,
-            gradeId: review.gradeId,
-            status: review.status,
-            updatedAt: review.updatedAt
-        }))
-    };
-
-    res.status(200).json(response);
 });
 
 
