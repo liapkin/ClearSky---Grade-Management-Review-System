@@ -1,6 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import db from './models/index.js';
+import { addTicks } from 'sequelize/lib/utils';
 
 const app = express();
 app.use(bodyParser.json());
@@ -98,8 +99,8 @@ app.get('/reviews', async (req, res) => {
     }
 });
 
-
-app.post('/reviews/:reviewId/response', (req, res) => {
+//TODO 
+app.post('/reviews/:reviewId/response', async (req, res) => {
     const { reviewId } = req.params;
     const { action, newGrade, response } = req.body;
     
@@ -107,35 +108,41 @@ app.post('/reviews/:reviewId/response', (req, res) => {
         return res.status(400).json({ error: 'reviewId is required as path parameter' });
     }
 
-    console.log(reviewId);
-
-    const reviewIndex = reviews.findIndex(review => review.id == reviewId);
-   
-    if (reviewIndex === -1) {
+    console.log("Searching for review no." + reviewId);
+    const  review = await db.reviews.findByPk(reviewId);
+    if (!review) {
         return res.status(404).json({ error: 'Review not found' });
     }
+    console.log("Review found:", review);
+    console.log("Searching for grade no." + review.grade_id);
+    const grade = await db.grades.findByPk(review.grade_id);
+    if (!grade) {
+        return res.status(404).json({ error: 'Grade not found' });
+    }
+
+    review.set({
+        state: action === 'approve' ? 'Approved' : 'Rejected',
+        response_message: response
+    });
     
-    const updatedReview = {
-        ...reviews[reviewIndex],
-        status: action === 'accepted' ? 'closed' : action === 'rejected' ? 'rejected' : reviews[reviewIndex].status,
-        response: response || reviews[reviewIndex].response,
-        grade: newGrade || reviews[reviewIndex].grade,
-        updatedAt: new Date()
-    };
-    
-    reviews[reviewIndex] = updatedReview;
-    
-    // Response for Submit Response
+    grade.set({
+        value: newGrade,
+        state: 1 // 1 for approved
+    });
+
+    await review.save();
+    await grade.save();
+
     const responseBody = {
-        reviewlist: {
-            status: updatedReview.status,
-            response: updatedReview.response,
-            updatedAt: updatedReview.updatedAt
-        }
+        reviewId: review.id,
+        state: review.state,
+        responseMessage: review.response_message,
+        gradeId: review.grade_id
     };
     
     res.status(201).json(responseBody);
 });
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
