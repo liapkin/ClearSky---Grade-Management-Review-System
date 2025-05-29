@@ -55,9 +55,39 @@ app.get('/reviews', async (req, res) => {
         
             res.status(200).json(response);
         };
-    
-            
         
+        if (role == "teacher") {
+            
+            console.log("Fetching reviews for teacher with ID:", userId);
+            
+            const rev = await db.reviews.findAll({
+                include: [
+                    {
+                    model: db.grades,
+                    as: 'grade',
+                    include: [
+                        {
+                        model: db.examinations,
+                        as: 'examination',
+                        where: {
+                            teacher_id: userId
+                        },
+                        }
+                    ],
+                    }
+                ]
+            });
+
+            const response = {
+                reviewerList: rev.map(review => ({
+                    reviewId: review.id,
+                    gradeId: review.grade_id,
+                    state: review.state,
+                }))
+            }
+        
+            res.status(200).json(response);
+        };
         
     } catch (error) {
         console.error('Error fetching reviews:', error);
