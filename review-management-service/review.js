@@ -1,10 +1,9 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const db = require('./models');
+import express from 'express';
+import bodyParser from 'body-parser';
+import db from './models/index.js';
 
 const app = express();
 app.use(bodyParser.json());
-
 
 app.post('/reviews/new',async (req, res) => {
     try{
@@ -28,23 +27,37 @@ app.post('/reviews/new',async (req, res) => {
 
 app.get('/reviews', async (req, res) => {
     try {
-        const { state, userId, role } = req.query;
+        const { state, userId, role } = req.body;
         
-        let whereClause = {};
+        if (role == "student") {
+            
+            console.log("Fetching reviews for student with ID:", userId);
+            
+            const rev = await db.reviews.findAll({
+                include: [{
+                    model: db.grades,
+                    as: 'grade',
+                    where: { student_id: userId }
+                }],
+                where: { state: state },
+                timeout: 5000
+            });
+            
+            console.log("Reviews fetched for student:", rev);
+
+            const response = {
+                reviewerList: rev.map(review => ({
+                    reviewId: review.id,
+                    gradeId: review.grade_id,
+                    state: review.state,
+                }))
+            }
         
-        const reviews = await db.reviews.findAll({
-            where: whereClause,
-        });
-        
-        const response = {
-            reviewerList: reviews.map(review => ({
-                reviewId: review.id,
-                gradeId: review.grade_id,
-                state: review.state,
-            }))
+            res.status(200).json(response);
         };
+    
+            
         
-        res.status(200).json(response);
         
     } catch (error) {
         console.error('Error fetching reviews:', error);
