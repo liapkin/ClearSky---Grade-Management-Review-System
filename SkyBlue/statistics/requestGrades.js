@@ -30,6 +30,3 @@ async function requestGrades(examination_id) {
 }
 
 module.exports = requestGrades;
-
-
-

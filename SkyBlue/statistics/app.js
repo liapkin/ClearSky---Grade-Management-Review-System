@@ -1,6 +1,5 @@
 // app.js
 const express = require('express');
-const multer = require('multer');
 const axios = require('axios');
 const requestGrades = require('./requestGrades');
 const requestEnrolledExams = require('./requestEnrolledExams');
@@ -58,7 +57,6 @@ app.get('/statistics/stats', async (req, res) => {
         const results = [];
         for (const id of examIds) {
             try {
-                // const response = await axios.get(`http://localhost:3000/statistics/stats`, {
                 const response = await axios.get(`http://statistics:3000/statistics/stats`, {
                     params: {
                         // student_id,

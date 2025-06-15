@@ -1,7 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import db from './models/index.js';
-import { addTicks } from 'sequelize/lib/utils';
 
 const app = express();
 app.use(bodyParser.json());
@@ -28,7 +27,7 @@ app.post('/reviews/new',async (req, res) => {
 
 app.get('/reviews', async (req, res) => {
     try {
-        const { state, userId, role } = req.body;
+        const { state, userId, role} = req.body;
         
         if (role == "student") {
             
