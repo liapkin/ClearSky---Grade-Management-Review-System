@@ -13,7 +13,7 @@ app.post('/reviews/new',async (req, res) => {
             grade_id: gradeId,
             request_message: message,
             response_message: '',
-            state: 'Pending', // 0 for pending
+            state: 'Pending',
         });
 
         res.status(201).json({ success: true, data: newReview });

@@ -16,7 +16,6 @@ app.get('/statistics', async (req, res) => {
         if (examination_id) {
             var grades = await db.Grade.findAll({
                 where: {
-                //   student_id: student_id,
                   examination_id: examination_id
                 },
                 attributes: ['value']
@@ -89,8 +88,6 @@ app.get('/statistics', async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
-
-
 
 
 app.listen(PORT, () => {
