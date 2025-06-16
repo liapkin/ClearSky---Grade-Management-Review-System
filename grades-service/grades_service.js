@@ -1,6 +1,8 @@
 const amqp = require('amqplib');
 const db = require('./models');
 
+const amqpUrl = process.env.RABBITMQ_URL;
+
 async function waitForRabbitMQ(url, retries = 10, delay = 3000) {
   for (let i = 0; i < retries; i++) {
     try {
@@ -15,10 +17,8 @@ async function waitForRabbitMQ(url, retries = 10, delay = 3000) {
 }
 
 
-// async function listenForGradeRequests() {
 module.exports = async function startMessageListener() {
-  const connection = await amqp.connect('amqp://localhost');
-  // const connection = await waitForRabbitMQ(amqpUrl);
+  const connection = await waitForRabbitMQ(amqpUrl);
   const channel = await connection.createChannel();
 
   await channel.assertQueue('grades.request', { durable: false });
@@ -76,8 +76,5 @@ module.exports = async function startMessageListener() {
     }
   });
 
-
   console.log('Grades service is waiting for requests...');
 }
-
-// listenForGradeRequests();

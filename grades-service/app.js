@@ -323,8 +323,8 @@ app.get('/grades/instructor-examinations', async (req, res) => {
   }
 });
 
-
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
-
+module.exports = async function startHttpServer() {
+  app.listen(PORT, () => {
+    console.log(`Grades HTTP API running on port ${PORT}`);
+  });
+};
