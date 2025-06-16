@@ -1,25 +1,19 @@
-// app.js
 const express = require('express');
-const multer = require('multer');
-const db = require('./models');
 const axios = require('axios');
-
+const requestGrades = require('./requestGrades');
+const requestEnrolledExams = require('./requestEnrolledExams');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-app.get('/statistics', async (req, res) => {
+app.get('/statistics/stats', async (req, res) => {
     const student_id = 1; 
     const { examination_id } = req.query;
   
     try {
         if (examination_id) {
-            var grades = await db.Grade.findAll({
-                where: {
-                  examination_id: examination_id
-                },
-                attributes: ['value']
-            });
+
+            const grades = await requestGrades(examination_id);
 
             if (grades.length === 0) {
                 return res.status(404).json({ message: `No grades found for student_id: ${student_id}` });
@@ -56,18 +50,13 @@ app.get('/statistics', async (req, res) => {
             });
         }
 
-        var enrolled_exams = await db.Grade.findAll({
-            where: {
-              student_id: student_id
-            },
-            attributes: ['examination_id']
-        });
+        const enrolled_exams = await requestEnrolledExams(student_id);
 
         const examIds = enrolled_exams.map(e => e.examination_id);
         const results = [];
         for (const id of examIds) {
             try {
-                const response = await axios.get(`http://localhost:3000/statistics`, {
+                const response = await axios.get(`http://statistics:3000/statistics/stats`, {
                     params: {
                         // student_id,
                         examination_id: id
