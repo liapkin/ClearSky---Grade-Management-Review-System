@@ -1,23 +1,23 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('uploads', {
+  return sequelize.define('institutions', {
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
     },
-    uid: {
+    name: {
       type: DataTypes.STRING(255),
       allowNull: false
     },
-    file: {
-      type: DataTypes.BLOB,
+    tokens: {
+      type: DataTypes.INTEGER,
       allowNull: false
     }
   }, {
     sequelize,
-    tableName: 'uploads',
+    tableName: 'institutions',
     timestamps: false,
     indexes: [
       {

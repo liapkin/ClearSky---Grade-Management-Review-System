@@ -1,8 +1,7 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('uploads', {
+  return sequelize.define('logs', {
     id: {
-      autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
@@ -11,23 +10,21 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(255),
       allowNull: false
     },
-    file: {
-      type: DataTypes.BLOB,
+    instructor_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    action: {
+      type: DataTypes.STRING(50),
+      allowNull: false
+    },
+    message: {
+      type: DataTypes.TEXT,
       allowNull: false
     }
   }, {
     sequelize,
-    tableName: 'uploads',
-    timestamps: false,
-    indexes: [
-      {
-        name: "PRIMARY",
-        unique: true,
-        using: "BTREE",
-        fields: [
-          { name: "id" },
-        ]
-      },
-    ]
+    tableName: 'logs',
+    timestamps: true
   });
 };

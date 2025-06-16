@@ -1,23 +1,31 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('uploads', {
+  return sequelize.define('representatives', {
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
     },
-    uid: {
+    institution_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'institutions',
+        key: 'id'
+      }
+    },
+    name: {
       type: DataTypes.STRING(255),
       allowNull: false
     },
-    file: {
-      type: DataTypes.BLOB,
+    surname: {
+      type: DataTypes.STRING(255),
       allowNull: false
     }
   }, {
     sequelize,
-    tableName: 'uploads',
+    tableName: 'representatives',
     timestamps: false,
     indexes: [
       {
@@ -26,6 +34,13 @@ module.exports = function(sequelize, DataTypes) {
         using: "BTREE",
         fields: [
           { name: "id" },
+        ]
+      },
+      {
+        name: "idx_representatives_institution",
+        using: "BTREE",
+        fields: [
+          { name: "institution_id" },
         ]
       },
     ]
