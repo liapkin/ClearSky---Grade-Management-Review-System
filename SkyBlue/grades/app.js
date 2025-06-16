@@ -1,16 +1,14 @@
-// app.js
 const express = require('express');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
-const path = require('path');
 const ExcelJS = require('exceljs');
 const db = require('./models');
-const { atob } = require('buffer');
-// app.use(express.json()); 
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+app.use(express.json()); 
 
 const upload = multer({ dest: 'uploads/' });
 
@@ -81,8 +79,6 @@ app.post('/grades/upload', upload.single('file'), async (req, res) => {
   }
 });
 
-
-app.use(express.json()); 
 // app.post('/grades/confirm', authenticate, async (req, res) => {
 app.post('/grades/confirm', async (req, res) => {
   const { uid, instructor_id } = req.body;
@@ -333,8 +329,3 @@ module.exports = async function startHttpServer() {
     console.log(`Grades HTTP API running on port ${PORT}`);
   });
 };
-
-// app.listen(PORT, () => {
-//   console.log(`Server running on http://localhost:${PORT}`);
-// });
-

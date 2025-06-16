@@ -15,4 +15,4 @@ COPY . .
 EXPOSE 3000
 
 # Command to run your app
-CMD ["node", "review.js"]
+CMD ["node", "index.js"]

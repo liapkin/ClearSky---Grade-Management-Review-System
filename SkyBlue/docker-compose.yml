@@ -42,6 +42,7 @@ services:
       - DB_USER=root
       - DB_PASSWORD=root
       - DB_NAME=SkyBlue
+      - RABBITMQ_URL=amqp://rabbitmq
 
   mysql:
     image: mysql:8

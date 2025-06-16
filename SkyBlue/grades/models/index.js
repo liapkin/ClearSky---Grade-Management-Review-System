@@ -7,11 +7,7 @@ const dbUser = process.env.DB_USER;
 const dbPassword = process.env.DB_PASSWORD;
 const dbName = process.env.DB_NAME;
 
-// const sequelize = new Sequelize('SkyBlue', 'root', 'root', {
-//   host: 'localhost',
-//   dialect: 'mysql',
-//   logging: false
-// });
+
 const sequelize = new Sequelize(dbName, dbUser, dbPassword, {
   host: dbHost,
   dialect: 'mysql',

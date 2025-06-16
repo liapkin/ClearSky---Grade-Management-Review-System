@@ -2,25 +2,23 @@ const express = require('express');
 const db = require('./models');
 const bodyParser = require('body-parser');
 
-const PORT = process.env.PORT || 3000;
-
 const app = express();
 app.use(bodyParser.json());
 
 app.post('/reviews/new',async (req, res) => {
     try{
         const { gradeId, message } = req.body;
-
+        
         const newReview = await db.reviews.create({
             grade_id: gradeId,
             request_message: message,
             response_message: '',
             state: 'Pending', // 0 for pending
         });
-
+        
         res.status(201).json({ success: true, data: newReview });
-
-  } catch (err) {
+        
+    } catch (err) {
         console.error('Σφάλμα στη δημιουργία review:', err);
         res.status(500).json({ success: false, error: 'Σφάλμα διακομιστή' });
   }
@@ -46,7 +44,7 @@ app.get('/reviews', async (req, res) => {
             });
             
             console.log("Reviews fetched for student:", rev);
-
+            
             const response = {
                 reviewerList: rev.map(review => ({
                     reviewId: review.id,
@@ -54,7 +52,7 @@ app.get('/reviews', async (req, res) => {
                     state: review.state,
                 }))
             }
-        
+            
             res.status(200).json(response);
         };
         
@@ -65,21 +63,21 @@ app.get('/reviews', async (req, res) => {
             const rev = await db.reviews.findAll({
                 include: [
                     {
-                    model: db.grades,
-                    as: 'grade',
-                    include: [
-                        {
-                        model: db.examinations,
-                        as: 'examination',
-                        where: {
-                            teacher_id: userId
-                        },
-                        }
-                    ],
+                        model: db.grades,
+                        as: 'grade',
+                        include: [
+                            {
+                                model: db.examinations,
+                                as: 'examination',
+                                where: {
+                                    teacher_id: userId
+                                },
+                            }
+                        ],
                     }
                 ]
             });
-
+            
             const response = {
                 reviewerList: rev.map(review => ({
                     reviewId: review.id,
@@ -87,7 +85,7 @@ app.get('/reviews', async (req, res) => {
                     state: review.state,
                 }))
             }
-        
+            
             res.status(200).json(response);
         };
         
@@ -100,7 +98,6 @@ app.get('/reviews', async (req, res) => {
     }
 });
 
-//TODO 
 app.post('/reviews/:reviewId/response', async (req, res) => {
     const { reviewId } = req.params;
     const { action, newGrade, response } = req.body;
@@ -108,7 +105,7 @@ app.post('/reviews/:reviewId/response', async (req, res) => {
     if (!reviewId) {
         return res.status(400).json({ error: 'reviewId is required as path parameter' });
     }
-
+    
     console.log("Searching for review no." + reviewId);
     const  review = await db.reviews.findByPk(reviewId);
     if (!review) {
@@ -120,7 +117,7 @@ app.post('/reviews/:reviewId/response', async (req, res) => {
     if (!grade) {
         return res.status(404).json({ error: 'Grade not found' });
     }
-
+    
     review.set({
         state: action === 'approve' ? 'Approved' : 'Rejected',
         response_message: response
@@ -130,10 +127,10 @@ app.post('/reviews/:reviewId/response', async (req, res) => {
         value: newGrade,
         state: 1 // 1 for approved
     });
-
+    
     await review.save();
     await grade.save();
-
+    
     const responseBody = {
         reviewId: review.id,
         state: review.state,
@@ -144,7 +141,4 @@ app.post('/reviews/:reviewId/response', async (req, res) => {
     res.status(201).json(responseBody);
 });
 
-
-app.listen(PORT, () => {
-    console.log(`Review service running on port ${PORT}`);
-});
+module.exports = app;
