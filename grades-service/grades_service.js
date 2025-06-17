@@ -77,7 +77,6 @@ module.exports = async function startMessageListener() {
   });
 
 
-  // Προσθήκη: grades ανά student_id
   channel.assertQueue('grades.student.request', { durable: false });
 
   channel.consume('grades.student.request', async (msg) => {
@@ -87,11 +86,11 @@ module.exports = async function startMessageListener() {
     try {
       const studentGrades = await db.grades.findAll({
         where: { student_id: request.student_id },
-        attributes: ['review_id', 'value']
+        attributes: ['id', 'value']
       });
 
       const result = studentGrades.map(g => ({
-        reviewId: g.review_id,
+        gradeId: g.id,
         grade: g.value
       }));
 
@@ -104,8 +103,10 @@ module.exports = async function startMessageListener() {
       channel.ack(msg);
     } catch (error) {
       console.error('Failed to fetch grades by student_id:', error);
-      channel.ack(msg); // Avoid retry loops
+      channel.ack(msg);
     }
   });
+
+
   console.log('Grades service is waiting for requests...');
 }

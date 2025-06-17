@@ -1,7 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const db = require('./models');
-const listener = require('./message__listener.js');
 
 const app = express();
 app.use(bodyParser.json());
