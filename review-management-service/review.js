@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const db = require('./models');
+const requestGrades = require('./requestStudentGrades'); 
 
 const app = express();
 app.use(bodyParser.json());
@@ -33,19 +34,19 @@ app.get('/reviews', async (req, res) => {
             
             console.log("Fetching reviews for student with ID:", userId);
 
-            //const grades = await getGradesByStudentId(studentId);
+            const grades = await requestGrades(userId);
+            const gradeIds = grades.map(grade => grade.gradeId);
+            console.log("Grades fetched for student:", grades);
             
             const rev = await db.reviews.findAll({
-                include: [{
-                    model: db.grades,
-                    as: 'grade',
-                    where: { student_id: userId }
-                }],
-                where: { state: state },
+                where: {
+                    grade_id: {
+                        [db.Sequelize.Op.in]: gradeIds
+                    },
+                    state: state
+                },
                 timeout: 5000
             });
-            
-            console.log("Reviews fetched for student:", rev);
             
             const response = {
                 reviewerList: rev.map(review => ({
