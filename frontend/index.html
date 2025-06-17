@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ClearSKY - Grade Management System</title>
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+  </head>
+  <body>
+    <div id="app">
+      <nav id="navbar" class="navbar" style="display: none;">
+        <div class="nav-container">
+          <h1 class="nav-logo">ClearSKY</h1>
+          <div class="nav-links">
+            <a href="/" class="nav-link">Dashboard</a>
+            <span id="role-specific-nav"></span>
+            <button id="logout-btn" class="logout-btn">Logout</button>
+          </div>
+        </div>
+      </nav>
+      <main id="main-content"></main>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
