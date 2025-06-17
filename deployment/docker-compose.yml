@@ -15,38 +15,20 @@ services:
       - DB_NAME=clearsky
       - RABBITMQ_URL=amqp://rabbitmq
 
-  grades:
+  user-management:
     build:
-      context: ../grades-service
+      context: ./user-management
       dockerfile: Dockerfile
-    container_name: grades
+    container_name: user-management
     ports:
-      - "3002:3000"
+      - "3004:3000"
     depends_on:
       - mysql
     environment:
       - DB_HOST=mysql
       - DB_USER=root
       - DB_PASSWORD=root
-      - DB_NAME=clearsky
-      - RABBITMQ_URL=amqp://rabbitmq
-
-  statistics:
-    build:
-      context: ../statistics-service
-      dockerfile: Dockerfile
-    container_name: statistics
-    ports:
-      - "3001:3000"
-    depends_on:
-      - mysql
-    environment:
-      - DB_HOST=mysql
-      - DB_USER=root
-      - DB_PASSWORD=root
-      - DB_NAME=clearsky
-      - RABBITMQ_URL=amqp://rabbitmq
-
+      - DB_NAME=SkyBlue
 
   mysql:
     image: mysql:8

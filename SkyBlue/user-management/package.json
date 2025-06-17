@@ -1,0 +1,24 @@
+{
+  "name": "user-management-service",
+  "version": "1.0.0",
+  "description": "Microservice for managing users in the clearSKY platform",
+  "main": "user.js",
+  
+  "scripts": {
+    "start": "node user.js",
+    "test" : "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "express": "^5.1.0",
+    "mysql2": "^3.14.1",
+    "sequelize": "^6.37.7",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "sequelize-auto": "^0.8.8"
+  }
+}
