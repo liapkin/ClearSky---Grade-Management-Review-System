@@ -1,0 +1,237 @@
+{
+	"info": {
+		"_postman_id": "6e6860ac-8d5b-4c43-9779-7873d58d0521",
+		"name": "TL2",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40242224"
+	},
+	"item": [
+		{
+			"name": "grades/upload",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/C:/ΕΜΠ Local/8ο ΕΞΑΜΗΝΟ/ΤΛ 2/Εργασια/clearSKY data example 1 basic.xlsx"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3001/grades/upload",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"grades",
+						"upload"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "grades/confirm",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"uid\": \"014c19d7-7945-4dca-b5e8-49d264eede2f\",\r\n  \"instructor_id\": \"1\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/grades/confirm",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"grades",
+						"confirm"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "grades/cancel",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"uid\": \"610ed016-23e2-4c89-b74b-54fdbb5db168\",\r\n  \"instructor_id\": \"1\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/grades/cancel",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"grades",
+						"cancel"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "grades/examination",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/grades/examination?examination_id=25",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"grades",
+						"examination"
+					],
+					"query": [
+						{
+							"key": "examination_id",
+							"value": "25"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "grades/student",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/grades/student?student_id=42&state=Open",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"grades",
+						"student"
+					],
+					"query": [
+						{
+							"key": "student_id",
+							"value": "42"
+						},
+						{
+							"key": "state",
+							"value": "Open"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "instructor-examinations",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/grades/instructor-examinations?id=1&role=student",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"grades",
+						"instructor-examinations"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "1"
+						},
+						{
+							"key": "role",
+							"value": "student"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "statistics/stats",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3002/statistics/stats?examination_id=25",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"statistics",
+						"stats"
+					],
+					"query": [
+						{
+							"key": "examination_id",
+							"value": "25"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
