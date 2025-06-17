@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "6e6860ac-8d5b-4c43-9779-7873d58d0521",
 		"name": "TL2",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
 		"_exporter_id": "40242224"
 	},
 	"item": [
@@ -21,18 +21,7 @@
 						}
 					]
 				},
-				"url": {
-					"raw": "http://localhost:3001/grades/upload",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3001",
-					"path": [
-						"grades",
-						"upload"
-					]
-				}
+				"url": "http://localhost:3001/grades/upload"
 			},
 			"response": []
 		},
@@ -59,18 +48,7 @@
 						}
 					}
 				},
-				"url": {
-					"raw": "http://localhost:3001/grades/confirm",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3001",
-					"path": [
-						"grades",
-						"confirm"
-					]
-				}
+				"url": "http://localhost:3001/grades/confirm"
 			},
 			"response": []
 		},
@@ -94,18 +72,7 @@
 						}
 					}
 				},
-				"url": {
-					"raw": "http://localhost:3001/grades/cancel",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3001",
-					"path": [
-						"grades",
-						"cancel"
-					]
-				}
+				"url": "http://localhost:3001/grades/cancel"
 			},
 			"response": []
 		},
@@ -230,6 +197,78 @@
 						}
 					]
 				}
+			},
+			"response": []
+		},
+		{
+			"name": "reviews/new",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"gradeId\": 220,\n    \"message\": \"I deserve something much better\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{base_url}}/reviews/new"
+			},
+			"response": []
+		},
+		{
+			"name": "reviews",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"state\": \"Pending\",\r\n    \"role\": \"student\",\r\n    \"userId\": 4\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/reviews",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"reviews"
+					],
+					"query": [
+						{
+							"key": "state",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "reviews/response",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \n\t\"action\": \"approve\",\n    \"newGrade\": 9,\n    \"response\": \"You were totally right.\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{base_url}}/reviews/8/response"
 			},
 			"response": []
 		}
