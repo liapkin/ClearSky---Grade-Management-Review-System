@@ -47,6 +47,21 @@ services:
       - DB_NAME=clearsky
       - RABBITMQ_URL=amqp://rabbitmq
 
+  user-management:
+    build:
+      context: ../user-management
+      dockerfile: Dockerfile
+    container_name: user-management
+    ports:
+      - "3004:3000"
+    depends_on:
+      - mysql
+    environment:
+      - DB_HOST=mysql
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=clearsky
+
 
   mysql:
     image: mysql:8
