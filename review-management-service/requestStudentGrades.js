@@ -2,7 +2,7 @@ const amqp = require('amqplib');
 const { v4: uuidv4 } = require('uuid');
 const amqpUrl = process.env.RABBITMQ_URL;
 
-async function requestGrades(examination_id) {
+async function requestGrades(student_id) {
   const connection = await amqp.connect(amqpUrl);
   const channel = await connection.createChannel();
 
@@ -19,9 +19,9 @@ async function requestGrades(examination_id) {
       }
     }, { noAck: true });
 
-    const requestPayload = Buffer.from(JSON.stringify({ examination_id }));
+    const requestPayload = Buffer.from(JSON.stringify({ student_id }));
 
-    channel.sendToQueue('grades.request', requestPayload, {
+    channel.sendToQueue('grades.student.request', requestPayload, {
       correlationId,
       replyTo: replyQueue.queue,
     });

@@ -31,6 +31,22 @@ services:
       - DB_NAME=clearsky
       - RABBITMQ_URL=amqp://rabbitmq
 
+  statistics:
+    build:
+      context: ../statistics-service
+      dockerfile: Dockerfile
+    container_name: statistics
+    ports:
+      - "3001:3000"
+    depends_on:
+      - mysql
+    environment:
+      - DB_HOST=mysql
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=clearsky
+      - RABBITMQ_URL=amqp://rabbitmq
+
 
   mysql:
     image: mysql:8

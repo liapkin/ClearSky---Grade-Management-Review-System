@@ -225,14 +225,14 @@ app.get('/grades/student', async (req, res) => {
 
   try {
     if (!state) {
-      var grades = await db.Grade.findAll({
+      var grades = await db.grades.findAll({
         where: { student_id },
         attributes: ['value']
       });
     }
 
     else {
-      var grades = await db.Grade.findAll({
+      var grades = await db.grades.findAll({
         where: {
           student_id,
           state: state

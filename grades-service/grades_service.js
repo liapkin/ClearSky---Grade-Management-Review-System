@@ -76,5 +76,36 @@ module.exports = async function startMessageListener() {
     }
   });
 
+
+  // Προσθήκη: grades ανά student_id
+  channel.assertQueue('grades.student.request', { durable: false });
+
+  channel.consume('grades.student.request', async (msg) => {
+    const request = JSON.parse(msg.content.toString());
+    console.log('Received student grades request for student_id:', request.student_id);
+
+    try {
+      const studentGrades = await db.grades.findAll({
+        where: { student_id: request.student_id },
+        attributes: ['review_id', 'value']
+      });
+
+      const result = studentGrades.map(g => ({
+        reviewId: g.review_id,
+        grade: g.value
+      }));
+
+      const responsePayload = Buffer.from(JSON.stringify({ grades: result }));
+
+      channel.sendToQueue(msg.properties.replyTo, responsePayload, {
+        correlationId: msg.properties.correlationId
+      });
+
+      channel.ack(msg);
+    } catch (error) {
+      console.error('Failed to fetch grades by student_id:', error);
+      channel.ack(msg); // Avoid retry loops
+    }
+  });
   console.log('Grades service is waiting for requests...');
 }

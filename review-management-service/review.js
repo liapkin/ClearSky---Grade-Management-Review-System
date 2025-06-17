@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const db = require('./models');
+const listener = require('./message__listener.js');
 
 const app = express();
 app.use(bodyParser.json());
@@ -13,7 +14,7 @@ app.post('/reviews/new',async (req, res) => {
             grade_id: gradeId,
             request_message: message,
             response_message: '',
-            state: 'Pending', // 0 for pending
+            state: 'Pending',
         });
         
         res.status(201).json({ success: true, data: newReview });
@@ -32,6 +33,8 @@ app.get('/reviews', async (req, res) => {
         if (role == "student") {
             
             console.log("Fetching reviews for student with ID:", userId);
+
+            //const grades = await getGradesByStudentId(studentId);
             
             const rev = await db.reviews.findAll({
                 include: [{
