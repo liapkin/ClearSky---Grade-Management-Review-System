@@ -13,19 +13,19 @@ async function run() {
     });
 
     // Ανάκτηση όλων των χρηστών με τα ιδρύματά τους
-    const users = await db.users.findAll({ include: { model: db.institutions, as: 'institution' } });
+    const students = await db.students.findAll({ include: { model: db.institutions, as: 'institution' } });
     console.log('\n👥 Χρήστες:');
-    users.forEach(user => {
-      console.log(`- [${user.id}] ${user.first_name} ${user.last_name} (${user.email}) - Ρόλος: ${user.role} - Ίδρυμα: ${user.institution?.name || 'N/A'}`);
+    students.forEach(student => {
+      console.log(`- [${student.id}] ${student.first_name} ${student.last_name} (${student.email}) - Ρόλος: ${student.role} - Ίδρυμα: ${student.institution?.name || 'N/A'}`);
     });
 
     // Αναζήτηση χρήστη με συγκεκριμένο ID
-    const userId = 1;
-    const user = await db.users.findByPk(userId);
-    if (user) {
-      console.log(`\n🔎 Χρήστης με ID=${userId}: ${user.first_name} ${user.last_name}, Ρόλος: ${user.role}`);
+    const studentId = 1;
+    const student = await db.students.findByPk(studentId);
+    if (student) {
+      console.log(`\n🔎 Χρήστης με ID=${studentId}: ${student.first_name} ${student.last_name}, Ρόλος: ${student.role}`);
     } else {
-      console.log(`\n❌ Δεν βρέθηκε χρήστης με ID=${userId}`);
+      console.log(`\n❌ Δεν βρέθηκε χρήστης με ID=${studentId}`);
     }
 
   } catch (error) {

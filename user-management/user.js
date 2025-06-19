@@ -6,7 +6,7 @@ const db = require('./models');
 const app = express();
 app.use(bodyParser.json());
 
-// 🔹 POST /users/register/instructor, /student, /representative (μέσω ενός endpoint)
+
 app.post('/users/register/:role', async (req, res) => {
   try {
     const { role } = req.params;
@@ -32,7 +32,7 @@ app.post('/users/register/:role', async (req, res) => {
   }
 });
 
-// GET /users/instructor/:id
+
 app.get('/users/instructor/:id', async (req, res) => {
   const user = await db.users.findByPk(req.params.id);
   if (!user || user.role !== 'INSTRUCTOR') {
@@ -41,7 +41,7 @@ app.get('/users/instructor/:id', async (req, res) => {
   res.json(user);
 });
 
-// GET /users/student/:id
+
 app.get('/users/student/:id', async (req, res) => {
   const user = await db.users.findByPk(req.params.id);
   if (!user || user.role !== 'STUDENT') {
@@ -50,7 +50,7 @@ app.get('/users/student/:id', async (req, res) => {
   res.json(user);
 });
 
-// GET /users/institutionUsers/:id
+
 app.get('/users/institutionUsers/:id', async (req, res) => {
   try {
     const users = await db.users.findAll({ where: { institution_id: req.params.id } });
@@ -60,6 +60,7 @@ app.get('/users/institutionUsers/:id', async (req, res) => {
     res.status(500).json({ error: 'Σφάλμα διακομιστή' });
   }
 });
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

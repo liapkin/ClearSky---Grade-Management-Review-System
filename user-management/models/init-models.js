@@ -3,27 +3,26 @@ var _credentials = require("./credentials");
 var _examinations = require("./examinations");
 var _grades = require("./grades");
 var _institutions = require("./institutions");
+var _logs = require("./logs");
 var _representatives = require("./representatives");
 var _reviews = require("./reviews");
 var _students = require("./students");
 var _teachers = require("./teachers");
 var _tokens = require("./tokens");
 var _uploads = require("./uploads");
-var _users = require("./users");
 
 function initModels(sequelize) {
   var credentials = _credentials(sequelize, DataTypes);
   var examinations = _examinations(sequelize, DataTypes);
   var grades = _grades(sequelize, DataTypes);
   var institutions = _institutions(sequelize, DataTypes);
+  var logs = _logs(sequelize, DataTypes);
   var representatives = _representatives(sequelize, DataTypes);
   var reviews = _reviews(sequelize, DataTypes);
   var students = _students(sequelize, DataTypes);
   var teachers = _teachers(sequelize, DataTypes);
   var tokens = _tokens(sequelize, DataTypes);
   var uploads = _uploads(sequelize, DataTypes);
-  var users = _users(sequelize, DataTypes);
-
 
   grades.belongsTo(examinations, { as: "examination", foreignKey: "examination_id"});
   examinations.hasMany(grades, { as: "grades", foreignKey: "examination_id"});
@@ -45,13 +44,13 @@ function initModels(sequelize) {
     examinations,
     grades,
     institutions,
+    logs,
     representatives,
     reviews,
     students,
     teachers,
     tokens,
     uploads,
-    users,
   };
 }
 module.exports = initModels;
