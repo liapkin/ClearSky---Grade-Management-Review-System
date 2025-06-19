@@ -2,28 +2,46 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const db = require('./models');
 
-
 const app = express();
 app.use(bodyParser.json());
 
 
-app.post('/users/register/:role', async (req, res) => {
+app.post('/users/register', async (req, res) => {
   try {
-    const { role } = req.params;
-    const { first_name, last_name, email, institution_id, identification_number } = req.body;
+    const { role, first_name, last_name, email, institution_id } = req.body;
 
     if (!['INSTRUCTOR', 'STUDENT', 'REPRESENTATIVE'].includes(role.toUpperCase())) {
       return res.status(400).json({ error: 'Invalid role' });
     }
 
-    if(role == 'instructor'){
+    if (role.toLowerCase() == 'instructor') {
       const newInstructor = await db.teachers.create({
         institution_id: institution_id,
-        name:first_name,
-        surname:last_name,
-        email:email,
+        name: first_name,
+        surname: last_name,
+        email: email,
       })
-      res.status(201).json({ success: true, data: newInstructor });
+      return res.status(201).json({ success: true, data: newInstructor });
+    }
+    
+    if (role.toLowerCase() == 'student') {
+      const newStudent = await db.students.create({
+        institution_id: institution_id,
+        name: first_name,
+        surname: last_name,
+        email: email,
+      })
+      return res.status(201).json({ success: true, data: newStudent });
+    }
+    
+    if (role.toLowerCase() == 'representative') {
+      const newRepresentatives = await db.representatives.create({
+        institution_id: institution_id,
+        name: first_name,
+        surname: last_name
+        // email: email,
+      })
+      return res.status(201).json({ success: true, data: newRepresentatives });
     }
 
   } catch (err) {
@@ -33,31 +51,47 @@ app.post('/users/register/:role', async (req, res) => {
 });
 
 
-app.get('/users/instructor/:id', async (req, res) => {
-  const user = await db.users.findByPk(req.params.id);
-  if (!user || user.role !== 'INSTRUCTOR') {
-    return res.status(404).json({ error: 'Instructor not found' });
-  }
+app.get('/users/instructor', async (req, res) => {
+  const { id } = req.query;
+  const user = await db.teachers.findByPk(id);
+
   res.json(user);
 });
 
 
-app.get('/users/student/:id', async (req, res) => {
-  const user = await db.users.findByPk(req.params.id);
-  if (!user || user.role !== 'STUDENT') {
-    return res.status(404).json({ error: 'Student not found' });
-  }
+app.get('/users/student', async (req, res) => {
+  const { id } = req.query;
+  const user = await db.students.findByPk(id);
+
   res.json(user);
 });
 
 
-app.get('/users/institutionUsers/:id', async (req, res) => {
+app.get('/users/institutionUsers', async (req, res) => {
   try {
-    const users = await db.users.findAll({ where: { institution_id: req.params.id } });
-    res.json({ users });
+    const { institutionId } = req.query;
+
+    if (isNaN(institutionId)) {
+      return res.status(400).json({ error: 'Invalid institution ID' });
+    }
+
+    const [teachers, students, representatives] = await Promise.all([
+      db.teachers.findAll({ where: { institution_id: institutionId } }),
+      db.students.findAll({ where: { institution_id: institutionId } }),
+      db.representatives.findAll({ where: { institution_id: institutionId } })
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        teachers,
+        students,
+        representatives
+      }
+    });
   } catch (err) {
-    console.error('Σφάλμα στη λήψη χρηστών:', err);
-    res.status(500).json({ error: 'Σφάλμα διακομιστή' });
+    console.error('Σφάλμα κατά την ανάκτηση χρηστών του ιδρύματος:', err);
+    return res.status(500).json({ success: false, error: 'Σφάλμα διακομιστή' });
   }
 });
 

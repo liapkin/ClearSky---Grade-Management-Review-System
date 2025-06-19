@@ -26,7 +26,6 @@ app.post('/grades/upload', upload.single('file'), async (req, res) => {
   const uid = uuidv4();
   const fileBuffer = fs.readFileSync(file.path);
 
-  // Parse Excel file to extract course
   let course = 'Unknown Course';
   let period = 'Unknown Period';
   let number_grades = 0;
@@ -39,9 +38,8 @@ app.post('/grades/upload', upload.single('file'), async (req, res) => {
     course = worksheet.getCell('E4').value || 'Unknown Course';
     period = worksheet.getCell('D4').value || 'Unknown Period';
 
-    // Count non-empty rows
     worksheet.eachRow((row, rowNumber) => {
-      if (rowNumber >= 4) { // Start counting from row 4
+      if (rowNumber >= 4) {
         const isNotEmpty = row.values.some((v, i) => i > 0 && v !== null && v !== '');
         if (isNotEmpty) number_grades++;
       }
@@ -52,12 +50,12 @@ app.post('/grades/upload', upload.single('file'), async (req, res) => {
   }
 
   try {
-    await db.Upload.create({
+    await db.uploads.create({
       uid: uid,
       file: fileBuffer
     });
 
-    await db.Log.create({
+    await db.logs.create({
       uid,
       instructor_id,
       action: 'upload',
@@ -90,7 +88,7 @@ app.post('/grades/confirm', async (req, res) => {
   }
 
   try {
-    const upload = await db.Upload.findOne({ where: { uid } });
+    const upload = await db.uploads.findOne({ where: { uid } });
     if (!upload) {
       return res.status(404).json({
         success: false,
@@ -105,14 +103,14 @@ app.post('/grades/confirm', async (req, res) => {
     const course = worksheet.getCell('E4').value || 'Unknown Course';       
     const semester = worksheet.getCell('D4').value || 'Unknown Semester';
 
-    const exam = await db.Examination.create({
+    const exam = await db.examinations.create({
       teacher_id: instructor_id,
       course,
       semester
     });
 
-    const studentAMs = [];       // Collect all AMs from Excel
-    const gradesData = [];       // Store both the AM and the row
+    const studentAMs = [];
+    const gradesData = [];
 
     worksheet.eachRow((row, rowNumber) => {
       if (rowNumber >= 4) {      
@@ -126,7 +124,7 @@ app.post('/grades/confirm', async (req, res) => {
       }
     });
 
-    const studentRecords = await db.Student.findAll({
+    const studentRecords = await db.students.findAll({
       where: { am: studentAMs }
     });
 
@@ -136,13 +134,13 @@ app.post('/grades/confirm', async (req, res) => {
     });
 
     for (const entry of gradesData) {
-      const studentId = studentMap.get(entry.am); // Match AM to student ID
+      const studentId = studentMap.get(entry.am);
       if (!studentId) continue; 
 
-      const gradeCell = entry.row.getCell(7); // Grade on col G
+      const gradeCell = entry.row.getCell(7);
       const gradeValue = gradeCell?.value;
 
-      await db.Grade.create({
+      await db.grades.create({
         student_id: studentId,
         examination_id: exam.id,
         value: parseInt(gradeValue),
@@ -150,7 +148,7 @@ app.post('/grades/confirm', async (req, res) => {
       });
     }
 
-    await db.Log.create({
+    await db.logs.create({
       uid,
       instructor_id,
       action: 'confirm',
@@ -183,7 +181,7 @@ app.post('/grades/cancel', async (req, res) => {
   }
 
   try {
-    const upload = await db.Upload.findOne({ where: { uid } });
+    const upload = await db.uploads.findOne({ where: { uid } });
 
     if (!upload) {
       return res.status(404).json({
@@ -194,7 +192,7 @@ app.post('/grades/cancel', async (req, res) => {
 
     await upload.destroy();
 
-    await db.Log.create({
+    await db.logs.create({
       uid,
       instructor_id,
       action: 'cancel',
@@ -260,7 +258,7 @@ app.get('/grades/examination', async (req, res) => {
     return res.status(400).json({ error: 'Missing examination_id' });
   }
   try {
-    const grades = await db.Grade.findAll({
+    const grades = await db.grades.findAll({
       where: { examination_id },
       attributes: ['value']
     });
@@ -289,14 +287,14 @@ app.get('/grades/instructor-examinations', async (req, res) => {
 
   try {
     if (role == "student") {
-      const grades = await db.Grade.findAll({
+      const grades = await db.grades.findAll({
         where: { student_id: id },
         attributes: ['examination_id']
       });
 
       const examIds = [...new Set(grades.map(g => g.examination_id))];
 
-      const exams = await db.Examination.findAll({
+      const exams = await db.examinations.findAll({
         where: { id: examIds },
         attributes: ['course']
       });
@@ -307,7 +305,7 @@ app.get('/grades/instructor-examinations', async (req, res) => {
 
     if (role == "teacher") {
       
-      var exams = await db.Examination.findAll({
+      var exams = await db.examinations.findAll({
         where: { teacher_id: id },
         attributes: ['course']
       });

@@ -29,7 +29,7 @@ module.exports = async function startMessageListener() {
     console.log('Received grade request for exam:', request.examination_id);
 
     try {
-      const grades = await db.Grade.findAll({
+      const grades = await db.grades.findAll({
         where: {
           examination_id: request.examination_id
         },
@@ -56,7 +56,7 @@ module.exports = async function startMessageListener() {
     console.log('Received enrollment request for student:', request.student_id);
 
     try {
-      const enrolledExams = await db.Grade.findAll({
+      const enrolledExams = await db.grades.findAll({
         where: {
           student_id: request.student_id
         },
