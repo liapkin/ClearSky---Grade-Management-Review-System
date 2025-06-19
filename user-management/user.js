@@ -16,16 +16,16 @@ app.post('/users/register/:role', async (req, res) => {
       return res.status(400).json({ error: 'Invalid role' });
     }
 
-    const newUser = await db.users.create({
-      first_name,
-      last_name,
-      email,
-      role: role.toUpperCase(),
-      institution_id,
-      identification_number: role.toUpperCase() === 'STUDENT' ? identification_number : null
-    });
+    if(role == 'instructor'){
+      const newInstructor = await db.teachers.create({
+        institution_id: institution_id,
+        name:first_name,
+        surname:last_name,
+        email:email,
+      })
+      res.status(201).json({ success: true, data: newInstructor });
+    }
 
-    res.status(201).json({ success: true, data: newUser });
   } catch (err) {
     console.error('Σφάλμα στη δημιουργία χρήστη:', err);
     res.status(500).json({ success: false, error: 'Σφάλμα διακομιστή' });
