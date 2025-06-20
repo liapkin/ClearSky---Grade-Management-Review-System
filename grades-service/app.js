@@ -8,6 +8,7 @@ const ExcelJS = require('exceljs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const upload = multer({ dest: 'uploads/' });
+const authenticateJWT = require('./middlewares/authenticateJWT');
 
 app.use(express.json()); 
 
@@ -15,9 +16,16 @@ if (!fs.existsSync('uploads')) {
   fs.mkdirSync('uploads');
 }
 
-app.post('/grades/upload', upload.single('file'), async (req, res) => {
+app.post('/grades/upload', authenticateJWT, upload.single('file'), async (req, res) => {
   const file = req.file;
-  const instructor_id = 1; // ToDo: Take from auth
+
+  const user = req.user;
+  
+  const instructor_id = user.teacherId;
+
+  if (user.role !== 'INSTRUCTOR') {
+    return res.status(403).json({ error: 'Only instructors can upload grades' });
+  }
 
   if (!file) {
     return res.status(400).json({ error: 'No file uploaded' });
@@ -57,7 +65,7 @@ app.post('/grades/upload', upload.single('file'), async (req, res) => {
 
     await db.logs.create({
       uid,
-      instructor_id,
+      teacher_id: instructor_id,
       action: 'upload',
       message: `Upload with uid ${uid} by instructor_id: ${instructor_id}`
     });
@@ -77,8 +85,12 @@ app.post('/grades/upload', upload.single('file'), async (req, res) => {
 });
 
 
-app.post('/grades/confirm', async (req, res) => {
-  const { uid, instructor_id } = req.body;
+app.post('/grades/confirm', authenticateJWT, async (req, res) => {
+  const { uid } = req.body;
+
+  const user = req.user;
+  
+  const instructor_id = user.teacherId;
 
   if (!uid || !instructor_id) {
     return res.status(400).json({
@@ -150,7 +162,7 @@ app.post('/grades/confirm', async (req, res) => {
 
     await db.logs.create({
       uid,
-      instructor_id,
+      teacher_id: instructor_id,
       action: 'confirm',
       message: `Grades confirmed by instructor: ${instructor_id}`
     });
@@ -170,8 +182,12 @@ app.post('/grades/confirm', async (req, res) => {
 });
 
 
-app.post('/grades/cancel', async (req, res) => {
-  const { uid, instructor_id } = req.body;
+app.post('/grades/cancel', authenticateJWT, async (req, res) => {
+  const { uid } = req.body;
+
+  const user = req.user;
+  
+  const instructor_id = user.teacherId;
 
   if (!uid || !instructor_id) {
     return res.status(400).json({
@@ -194,7 +210,7 @@ app.post('/grades/cancel', async (req, res) => {
 
     await db.logs.create({
       uid,
-      instructor_id,
+      teacher_id: instructor_id,
       action: 'cancel',
       message: `Upload with uid ${uid} has been canceled by instructor_id: ${instructor_id}`
     });

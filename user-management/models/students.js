@@ -27,6 +27,10 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(255),
       allowNull: false,
       unique: "unique_email"
+    },
+    am: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
     }
   }, {
     sequelize,

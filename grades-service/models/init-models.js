@@ -39,6 +39,8 @@ function initModels(sequelize) {
   examinations.belongsTo(teachers, { as: "teacher", foreignKey: "teacher_id"});
   teachers.hasMany(examinations, { as: "examinations", foreignKey: "teacher_id"});
 
+  teachers.hasMany(logs, { as: "logs", foreignKey: "teacher_id"});
+
   return {
     credentials,
     examinations,

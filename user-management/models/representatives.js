@@ -22,7 +22,13 @@ module.exports = function(sequelize, DataTypes) {
     surname: {
       type: DataTypes.STRING(255),
       allowNull: false
+    },
+    email: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+      unique: "unique_representative_email"
     }
+
   }, {
     sequelize,
     tableName: 'representatives',
@@ -43,6 +49,12 @@ module.exports = function(sequelize, DataTypes) {
           { name: "institution_id" },
         ]
       },
+      {
+       name: "unique_representative_email",
+          unique: true,
+          using: "BTREE",
+          fields: [{ name: "email" }]
+      }
     ]
   });
 };

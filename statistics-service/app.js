@@ -3,13 +3,26 @@ const axios = require('axios');
 const requestGrades = require('./requestGrades');
 const requestEnrolledExams = require('./requestEnrolledExams');
 
+const authenticateJWT = require('./middlewares/authenticateJWT');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.get('/statistics/stats', async (req, res) => {
-    const student_id = 1; 
-    const { examination_id } = req.query;
+app.get('/statistics/stats', authenticateJWT, async (req, res) => {
+    // const student_id = 1; 
+    // const { student_id, examination_id } = req.query;
+
+    const user = req.user;
   
+    const student_id = user.student_id;
+
+    const { examination_id } = req.query;
+    // const examination_id = 4
+  
+    if (user.role !== 'STUDENT') {
+        return res.status(403).json({ error: 'Only students can use this' });
+    }
+
     try {
         if (examination_id) {
 

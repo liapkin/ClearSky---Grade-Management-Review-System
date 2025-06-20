@@ -1,4 +1,15 @@
 services:
+  clearsky-frontend:
+    build: ../clearsky-frontend
+    container_name: clearsky-frontend
+    ports:
+      - "80:80"
+    networks:
+      - app-network
+    environment:
+      - VITE_GOOGLE_CLIENT_ID=199976142604-rqvqemo7c1fkpiantvgdtendm3iomsq7.apps.googleusercontent.com
+      - VITE_ENV=development
+
   review:
     build:
       context: ../review-management-service
@@ -14,6 +25,7 @@ services:
       - DB_PASSWORD=root
       - DB_NAME=clearsky
       - RABBITMQ_URL=amqp://rabbitmq
+      - JWT_SECRET=dev-only-secret
 
   grades:
     build:
@@ -30,6 +42,7 @@ services:
       - DB_PASSWORD=root
       - DB_NAME=clearsky
       - RABBITMQ_URL=amqp://rabbitmq
+      - JWT_SECRET=dev-only-secret
 
   statistics:
     build:
@@ -46,6 +59,7 @@ services:
       - DB_PASSWORD=root
       - DB_NAME=clearsky
       - RABBITMQ_URL=amqp://rabbitmq
+      - JWT_SECRET=dev-only-secret
 
   user-management:
     build:
@@ -61,6 +75,7 @@ services:
       - DB_USER=root
       - DB_PASSWORD=root
       - DB_NAME=clearsky
+      - JWT_SECRET=dev-only-secret
 
 
   mysql:
@@ -103,3 +118,7 @@ services:
 
 volumes:
   mysql_data:
+
+networks:
+  app-network:
+    driver: bridge
