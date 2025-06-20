@@ -1,27 +1,23 @@
 const express = require('express');
-const pool = require('../models');
+const db = require('../models');
 const router = express.Router();
 
-// 1. List all institutions
-//    GET /institutions
-// routes/institutions.js
 router.get('/', async (req, res) => {
-  console.log('👉 [institutions] GET /institutions called');        // ← debug
   try {
-    const [rows] = await pool.query(
-      'SELECT institution_id AS institutionId, name, address, contact_email AS contactEmail, created_at AS createdAt FROM institutions'
-    );
-    console.log('📋 [institutions] DB rows:', rows);                // ← debug
+      const [rows] = await db.institutions.findAll({
+        attributes: [
+          'id',
+          'name',
+          'tokens',
+        ],
+        });
     return res.json(rows);
   } catch (err) {
-    console.error('❌ [institutions] DB error:', err);
     return res.status(500).json({ error: 'Database error' });
   }
 });
 
 
-// 2. Create a new institution
-//    POST /institutions
 router.post('/', async (req, res) => {
   const { name, address, contactEmail } = req.body;
   const [result] = await pool.query(
