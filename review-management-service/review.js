@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const db = require('./models');
 const requestGrades = require('./requestStudentGrades'); 
+const authenticateJWT = require('./middlewares/authenticateJWT');
 
 const app = express();
 app.use(bodyParser.json());
@@ -26,7 +27,7 @@ app.post('/reviews/new',async (req, res) => {
 });
 
 
-app.get('/reviews', async (req, res) => {
+app.get('/reviews', authenticateJWT, async (req, res) => {
     try {
         // const { state, userId, role } = req.body;
         const { state } = req.body;
