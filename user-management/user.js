@@ -9,15 +9,16 @@ const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-only-secret';
 
 
-app.post('/users/register', async (req, res) => {
+app.post('/users/register/:role', async (req, res) => {
   try {
-    const { role, first_name, last_name, email, institution_id } = req.body;
+    const { first_name, last_name, email, institution_id } = req.body;
+    const { role } = req.params;
 
-    if (!['INSTRUCTOR', 'STUDENT', 'REPRESENTATIVE'].includes(role.toUpperCase())) {
+    if (!['instructor', 'student', 'representative'].includes(role)) {
       return res.status(400).json({ error: 'Invalid role' });
     }
 
-    if (role.toLowerCase() == 'instructor') {
+    if (role == 'instructor') {
       const newInstructor = await db.teachers.create({
         institution_id: institution_id,
         name: first_name,
@@ -27,7 +28,7 @@ app.post('/users/register', async (req, res) => {
       return res.status(201).json({ success: true, data: newInstructor });
     }
     
-    if (role.toLowerCase() == 'student') {
+    if (role == 'student') {
       const newStudent = await db.students.create({
         institution_id: institution_id,
         name: first_name,
@@ -37,7 +38,7 @@ app.post('/users/register', async (req, res) => {
       return res.status(201).json({ success: true, data: newStudent });
     }
     
-    if (role.toLowerCase() == 'representative') {
+    if (role == 'representative') {
       const newRepresentatives = await db.representatives.create({
         institution_id: institution_id,
         name: first_name,

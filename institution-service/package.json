@@ -1,0 +1,14 @@
+{
+  "name": "institution-service",
+  "version": "1.0.0",
+  "description": "Institution Service with MySQL (no auth)",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mysql2": "^3.2.0",
+    "dotenv": "^16.0.3"
+  }
+}
