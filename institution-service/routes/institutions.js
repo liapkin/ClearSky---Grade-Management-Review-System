@@ -1,6 +1,5 @@
-// routes/institutions.js
 const express = require('express');
-const pool = require('../db');
+const pool = require('../models');
 const router = express.Router();
 
 // 1. List all institutions
