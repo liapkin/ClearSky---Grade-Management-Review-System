@@ -28,8 +28,14 @@ app.post('/reviews/new',async (req, res) => {
 
 app.get('/reviews', async (req, res) => {
     try {
-        const { state, userId, role } = req.body;
+        // const { state, userId, role } = req.body;
+        const { state } = req.body;
         
+        const user = req.user;
+  
+        const userId = user.sub;
+        const role = user.role.toLowerCase();
+
         if (role == "student") {
             
             console.log("Fetching reviews for student with ID:", userId);
