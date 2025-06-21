@@ -25,16 +25,16 @@ module.exports = async function startMessageListener() {
 
     channel.consume('teacherInstitution.request', async (msg) => { 
         const request = JSON.parse(msg.content.toString()); 
-        console.log('Received instutution_id request for teacher:', request.teacher_id);
+        console.log('Received institution_id request for teacher:', request.teacher_id);
 
         try {
-            const instututionId = await db.teachers.findByPk(request.teacher_id, {
+            const institutionId = await db.teachers.findByPk(request.teacher_id, {
                 attributes: ['institution_id']}
             );
 
-            console.log('Found institution_id:', instututionId);
+            console.log('Found institution_id:', institutionId);
 
-            const responsePayload = Buffer.from(JSON.stringify({ instututionId }));
+            const responsePayload = Buffer.from(JSON.stringify({ institutionId }));
 
             channel.sendToQueue(msg.properties.replyTo, responsePayload, {
                 correlationId: msg.properties.correlationId

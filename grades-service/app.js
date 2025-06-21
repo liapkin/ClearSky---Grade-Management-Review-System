@@ -11,6 +11,12 @@ const upload = multer({ dest: 'uploads/' });
 const authenticateJWT = require('./middlewares/authenticateJWT');
 const requestTeacherInstitution = require('./requestTeacherInstitution');
 
+<<<<<<< HEAD
+=======
+//For testing, temporary
+const id = await requestTeacherInstitution(4);
+console.log('Teacher Institution ID:', id);
+>>>>>>> aefad8b1c499988cef7538bb518611ec39370009
 
 app.use(express.json()); 
 

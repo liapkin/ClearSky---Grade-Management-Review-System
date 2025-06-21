@@ -77,11 +77,19 @@ services:
       - DB_NAME=clearsky
       - JWT_SECRET=dev-only-secret
 
+<<<<<<< HEAD
   institution-service:
     build:
       context: ../institution-service
       dockerfile: Dockerfile
     container_name: institution-service
+=======
+  institution:
+    build:
+      context: ../institution-service
+      dockerfile: Dockerfile
+    container_name: institution
+>>>>>>> aefad8b1c499988cef7538bb518611ec39370009
     ports:
       - "3005:3000"
     depends_on:
@@ -91,8 +99,13 @@ services:
       - DB_USER=root
       - DB_PASSWORD=root
       - DB_NAME=clearsky
+<<<<<<< HEAD
       - RABBITMQ_URL=amqp://rabbitmq
       - JWT_SECRET=dev-only-secret
+=======
+      - JWT_SECRET=dev-only-secret
+
+>>>>>>> aefad8b1c499988cef7538bb518611ec39370009
 
   mysql:
     image: mysql:8
