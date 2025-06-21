@@ -77,6 +77,22 @@ services:
       - DB_NAME=clearsky
       - JWT_SECRET=dev-only-secret
 
+  institution:
+    build:
+      context: ../institution-service
+      dockerfile: Dockerfile
+    container_name: institution
+    ports:
+      - "3005:3000"
+    depends_on:
+      - mysql
+    environment:
+      - DB_HOST=mysql
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=clearsky
+      - JWT_SECRET=dev-only-secret
+
 
   mysql:
     image: mysql:8

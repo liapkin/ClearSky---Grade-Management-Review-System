@@ -12,7 +12,7 @@ const authenticateJWT = require('./middlewares/authenticateJWT');
 const requestTeacherInstitution = require('./requestTeacherInstitution');
 
 //For testing, temporary
-const id = requestTeacherInstitution(4);
+const id = await requestTeacherInstitution(4);
 console.log('Teacher Institution ID:', id);
 
 app.use(express.json()); 
