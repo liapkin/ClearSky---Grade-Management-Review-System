@@ -9,6 +9,11 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const upload = multer({ dest: 'uploads/' });
 const authenticateJWT = require('./middlewares/authenticateJWT');
+const requestTeacherInstitution = require('./requestTeacherInstitution');
+
+//For testing, temporary
+const id = requestTeacherInstitution(4);
+console.log('Teacher Institution ID:', id);
 
 app.use(express.json()); 
 
