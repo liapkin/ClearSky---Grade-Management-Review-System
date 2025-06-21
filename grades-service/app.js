@@ -110,85 +110,112 @@ app.post('/grades/confirm', authenticateJWT, async (req, res) => {
     });
   }
 
+  const t = await sequelize.transaction();
   try {
-    const upload = await db.uploads.findOne({ where: { uid } });
-    if (!upload) {
-      return res.status(404).json({
-        success: false,
-        message: 'Upload not found'
-      });
-    }
-
-    const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.load(upload.file);
-    const worksheet = workbook.worksheets[0];
-
-    const course = worksheet.getCell('E4').value || 'Unknown Course';       
-    const semester = worksheet.getCell('D4').value || 'Unknown Semester';
-
-    const exam = await db.examinations.create({
-      teacher_id: instructor_id,
-      course,
-      semester
-    });
-
-    const studentAMs = [];
-    const gradesData = [];
-
-    worksheet.eachRow((row, rowNumber) => {
-      if (rowNumber >= 4) {      
-        const amCell = row.getCell(1); 
-        const am = amCell?.value?.toString()?.trim(); 
-
-        if (am) {
-          studentAMs.push(am);             
-          gradesData.push({ am, row });    
-        }
+    try {
+      const upload = await db.uploads.findOne({ where: { uid } });
+      if (!upload) {
+        return res.status(404).json({
+          success: false,
+          message: 'Upload not found'
+        });
       }
-    });
 
-    const studentRecords = await db.students.findAll({
-      where: { am: studentAMs }
-    });
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(upload.file);
+      const worksheet = workbook.worksheets[0];
 
-    const studentMap = new Map();
-    studentRecords.forEach(student => {
-      studentMap.set(student.am, student.id);
-    });
+      const course = worksheet.getCell('E4').value || 'Unknown Course';       
+      const semester = worksheet.getCell('D4').value || 'Unknown Semester';
 
-    for (const entry of gradesData) {
-      const studentId = studentMap.get(entry.am);
-      if (!studentId) continue; 
-
-      const gradeCell = entry.row.getCell(7);
-      const gradeValue = gradeCell?.value;
-
-      await db.grades.create({
-        student_id: studentId,
-        examination_id: exam.id,
-        value: parseInt(gradeValue),
-        state: "Open"
+      const exam = await db.examinations.create({
+        teacher_id: instructor_id,
+        course,
+        semester
       });
+
+      const studentAMs = [];
+      const gradesData = [];
+
+      worksheet.eachRow((row, rowNumber) => {
+        if (rowNumber >= 4) {      
+          const amCell = row.getCell(1); 
+          const am = amCell?.value?.toString()?.trim(); 
+
+          if (am) {
+            studentAMs.push(am);             
+            gradesData.push({ am, row });    
+          }
+        }
+      });
+
+      const studentRecords = await db.students.findAll({
+        where: { am: studentAMs }
+      });
+
+      const studentMap = new Map();
+      studentRecords.forEach(student => {
+        studentMap.set(student.am, student.id);
+      });
+
+      for (const entry of gradesData) {
+        const studentId = studentMap.get(entry.am);
+        if (!studentId) continue; 
+
+        const gradeCell = entry.row.getCell(7);
+        const gradeValue = gradeCell?.value;
+
+        await db.grades.create({
+          student_id: studentId,
+          examination_id: exam.id,
+          value: parseInt(gradeValue),
+          state: "Open"
+        });
+      }
+
+      await db.logs.create({
+        uid,
+        teacher_id: instructor_id,
+        action: 'confirm',
+        message: `Grades confirmed by instructor: ${instructor_id}`
+      });
+
+    } catch (err) {
+      throw new Error('Error confirming grades: ' + err.message);
     }
 
-    await db.logs.create({
-      uid,
-      teacher_id: instructor_id,
-      action: 'confirm',
-      message: `Grades confirmed by instructor: ${instructor_id}`
-    });
+    try { // ToDo: Charging the User 
 
+      // Step 1: Get institution id
+      /* const id = await requestTeacherInstitution(4);
+        id: id?.[0]?.institution_id ?? null */
+
+      // Step 2: Get balance '/:institutionId/credits'
+
+      // Step 3: If balance > amount_we_charge -> proceed
+      //         else ...
+
+      // Step 4: Pay '/:institutionId/credits/consume'
+
+
+      // Try and catch logic: We have two opertions, 1: Payment, 2: db inserting, ...
+      // Either both operations succeed, or neither should happen 
+
+
+    } catch(err) {
+      throw new Error('Charging processing failed: ' + err.message);
+    }
+
+    await t.commit();
     res.json({
-      success: true,
-      message: `Grades confirmed by instructor: ${instructor_id}`
+        success: true,
+        message: `Grades confirmed by instructor: ${instructor_id}`
     });
-
-  } catch (err) {
-    console.error('Error confirming grades:', err);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error'
-    });
+    
+  } catch (error) {
+    await t.rollback();
+    console.error('Operation failed:', error.message);
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
