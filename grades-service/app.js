@@ -22,7 +22,7 @@ app.get('/grades/test', async (req, res) => {
   console.log('Teacher Institution ID:', id);
   return res.json({
       success: true,
-      id: id
+      id: id?.[0]?.institution_id ?? null
   });
 
 });
