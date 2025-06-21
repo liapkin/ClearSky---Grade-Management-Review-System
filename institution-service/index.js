@@ -1,12 +1,10 @@
-// index.js
-require('dotenv').config();
 const express = require('express');
 const instRoutes = require('./routes/institutions');
+const db = require('./models');
 
 const app = express();
 app.use(express.json());
 
-// Mount all institution endpoints
 app.use('/institutions', instRoutes);
 
 const PORT = process.env.PORT || 3000;

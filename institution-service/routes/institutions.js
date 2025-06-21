@@ -1,116 +1,140 @@
-// routes/institutions.js
 const express = require('express');
-const pool = require('../db');
+const db = require('../models');
 const router = express.Router();
 
-// 1. List all institutions
-//    GET /institutions
-// routes/institutions.js
 router.get('/', async (req, res) => {
-  console.log('👉 [institutions] GET /institutions called');        // ← debug
   try {
-    const [rows] = await pool.query(
-      'SELECT institution_id AS institutionId, name, address, contact_email AS contactEmail, created_at AS createdAt FROM institutions'
-    );
-    console.log('📋 [institutions] DB rows:', rows);                // ← debug
+      const [rows] = await db.institutions.findAll({
+        attributes: [
+          'id',
+          'name',
+          'tokens',
+        ],
+        });
     return res.json(rows);
   } catch (err) {
-    console.error('❌ [institutions] DB error:', err);
     return res.status(500).json({ error: 'Database error' });
   }
 });
 
 
-// 2. Create a new institution
-//    POST /institutions
 router.post('/', async (req, res) => {
   const { name, address, contactEmail } = req.body;
-  const [result] = await pool.query(
-    'INSERT INTO institutions (name,address,contact_email,created_at,representative_id) VALUES (?, ?, ?, NOW(), ?)',
-    [name, address, contactEmail, null]  // no auth => null representative
-  );
-  const institutionId = result.insertId;
-  // initialize credits
-  await pool.query(
-    'INSERT INTO credits (institution_id,balance) VALUES (?, 0)',
-    [institutionId]
-  );
-  const [rows] = await pool.query(
-    'SELECT institution_id AS institutionId, name, address, contact_email AS contactEmail, created_at AS createdAt FROM institutions WHERE institution_id = ?',
-    [institutionId]
-  );
-  res
-    .status(201)
-    .location(`/institutions/${institutionId}`)
-    .json(rows[0]);
+  
+  try{ 
+    const newInstitution = await db.institutions.create({
+      name: name,
+      tokens: 0
+    });
+    return res.status(200).json(newInstitution);
+  }
+  catch (err) {
+    return res.status(500).json({ error: 'Database error' });
+  }
 });
 
-// 3. Get one institution’s details
-//    GET /institutions/:institutionId
+
 router.get('/:institutionId', async (req, res) => {
-  const [rows] = await pool.query(
-    'SELECT institution_id AS institutionId, name, address, contact_email AS contactEmail, created_at AS createdAt FROM institutions WHERE institution_id = ?',
-    [req.params.institutionId]
-  );
-  if (!rows.length) return res.status(404).json({ error: 'Not found' });
-  res.json(rows[0]);
+  const institutionId = req.params.institutionId;
+  
+  try {
+    const institution = await db.institutions.findByPk(institutionId, {
+      attributes: ['id', 'name', 'tokens']
+    });
+    
+    if (!institution) {
+      return res.status(404).json({ error: 'Institution not found' });
+    }
+    
+    return res.json(institution);
+  } catch (err) {
+    return res.status(500).json({ error: 'Database error' });
+  }
 });
 
-// 4. Delete an institution
-//    DELETE /institutions/:institutionId
+
 router.delete('/:institutionId', async (req, res) => {
-  await pool.query('DELETE FROM credits WHERE institution_id = ?', [
-    req.params.institutionId
-  ]);
-  await pool.query('DELETE FROM institutions WHERE institution_id = ?', [
-    req.params.institutionId
-  ]);
-  res.status(204).send();
+  const institutionId = req.params.institutionId;
+  
+  try {
+    const institution = await db.institutions.destroy({
+      where: { id: institutionId }
+    });
+    
+    if (!institution) {
+      return res.status(404).json({ error: 'Institution not found' });
+    }
+    
+    return res.status(204).send();
+  } catch (err) {
+    return res.status(500).json({ error: 'Database error' });
+  }
 });
 
-// 5. Get credit balance
-//    GET /institutions/:institutionId/credits
+
 router.get('/:institutionId/credits', async (req, res) => {
-  const [rows] = await pool.query(
-    'SELECT balance FROM credits WHERE institution_id = ?',
-    [req.params.institutionId]
-  );
-  if (!rows.length) return res.status(404).json({ error: 'Not found' });
-  res.json({
-    institutionId: req.params.institutionId,
-    creditBalance: rows[0].balance
-  });
+  const institutionId = req.params.institutionId;
+  
+  try {
+    const tokens = await db.institutions.findByPk(institutionId, {
+      attributes: ['tokens']
+    });
+    
+    return res.json(tokens);
+  } catch (err) {
+    return res.status(500).json({ error: 'Database error' });
+  }
 });
 
-// 6. Purchase credits
-//    POST /institutions/:institutionId/credits/purchase
 router.post('/:institutionId/credits/purchase', async (req, res) => {
+  const institutionId = req.params.institutionId;
   const { amount } = req.body;
-  await pool.query(
-    'UPDATE credits SET balance = balance + ? WHERE institution_id = ?',
-    [amount, req.params.institutionId]
-  );
-  const [rows] = await pool.query(
-    'SELECT balance FROM credits WHERE institution_id = ?',
-    [req.params.institutionId]
-  );
-  res.json({ creditBalance: rows[0].balance });
+
+  if (!amount || amount <= 0) {
+    return res.status(400).json({ error: 'Invalid amount' });
+  }
+
+  try {
+    await db.institutions.update(
+      { tokens: db.sequelize.literal(`tokens + ${amount}`) },
+      { where: { id: institutionId } }
+    );
+
+    return res.json({ success: true, message: 'Credits purchased successfully' });
+  } catch (err) {
+    return res.status(500).json({ error: 'Database error' });
+  }
 });
 
-// 7. Consume a credit
-//    POST /institutions/:institutionId/credits/consume
+
 router.post('/:institutionId/credits/consume', async (req, res) => {
-  const [update] = await pool.query(
-    'UPDATE credits SET balance = balance - 1 WHERE institution_id = ? AND balance > 0',
-    [req.params.institutionId]
-  );
-  if (!update.affectedRows)
-    return res.status(403).json({ error: 'Insufficient credits' });
-  const [rows] = await pool.query(
-    'SELECT balance FROM credits WHERE institution_id = ?',
-    [req.params.institutionId]
-  );
-  res.json({ remainingCredits: rows[0].balance });
+  const institutionId = req.params.institutionId;
+  const { amount } = req.body;
+
+  if (!amount || amount <= 0) {
+    return res.status(400).json({ error: 'Invalid amount' });
+  }
+
+  try {
+    const institution = await db.institutions.findByPk(institutionId);
+
+    if (!institution) {
+      return res.status(404).json({ error: 'Institution not found' });
+    }
+
+    if (institution.tokens < amount) {
+      return res.status(400).json({ error: 'Insufficient credits' });
+    }
+
+    await db.institutions.update(
+      { tokens: db.sequelize.literal(`tokens - ${amount}`) },
+      { where: { id: institutionId } }
+    );
+
+    return res.json({ success: true, message: 'Credits consumed successfully' });
+  } catch (err) {
+    return res.status(500).json({ error: 'Database error' });
+  }
 });
 
 module.exports = router;
