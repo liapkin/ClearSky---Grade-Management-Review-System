@@ -28,9 +28,15 @@ module.exports = async function startMessageListener() {
         console.log('Received institution_id request for teacher:', request.teacher_id);
 
         try {
-            const institutionId = await db.teachers.findByPk(request.teacher_id, {
-                attributes: ['institution_id']}
-            );
+            // const institutionId = await db.teachers.findByPk(request.teacher_id, {
+            //     attributes: ['institution_id']}
+            // );
+            const institutionId = await db.teachers.findAll({
+                where: {
+                    id: request.teacher_id
+                },
+                attributes: ['institution_id']
+            });
 
             console.log('Found institution_id:', institutionId);
 
