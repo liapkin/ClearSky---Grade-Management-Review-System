@@ -21,6 +21,16 @@ if (!fs.existsSync('uploads')) {
   fs.mkdirSync('uploads');
 }
 
+app.get('/grades/test', async (req, res) => {
+  const id = requestTeacherInstitution(4);
+  console.log('Teacher Institution ID:', id);
+  return res.json({
+      success: true,
+      id: id
+  });
+
+});
+
 app.post('/grades/upload', authenticateJWT, upload.single('file'), async (req, res) => {
   const file = req.file;
 
