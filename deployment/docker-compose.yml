@@ -77,6 +77,22 @@ services:
       - DB_NAME=clearsky
       - JWT_SECRET=dev-only-secret
 
+  institution-service:
+    build:
+      context: ../institution-service
+      dockerfile: Dockerfile
+    container_name: institution-service
+    ports:
+      - "3005:3000"
+    depends_on:
+      - mysql
+    environment:
+      - DB_HOST=mysql
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=clearsky
+      - RABBITMQ_URL=amqp://rabbitmq
+      - JWT_SECRET=dev-only-secret
 
   mysql:
     image: mysql:8
@@ -86,7 +102,7 @@ services:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: clearsky
     ports:
-      - "3308:3306"
+      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./mysql-init:/docker-entrypoint-initdb.d

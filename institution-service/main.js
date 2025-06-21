@@ -1,5 +1,5 @@
-const startHttpServer = require('./app');            
-const startMessageListener = require('./institution-service');
+const startHttpServer = require('./index');            
+const startMessageListener = require('./message_listener');
 
 async function main() {
   try {
