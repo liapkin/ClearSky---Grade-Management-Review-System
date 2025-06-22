@@ -12,7 +12,20 @@ const upload = multer({ dest: 'uploads/' });
 const authenticateJWT = require('./middlewares/authenticateJWT');
 const requestTeacherInstitution = require('./requestTeacherInstitution');
 
-app.use(express.json()); 
+app.use(express.json());
+
+// Add CORS middleware
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+}); 
 
 if (!fs.existsSync('uploads')) {
   fs.mkdirSync('uploads');
@@ -120,7 +133,7 @@ app.post('/grades/confirm', authenticateJWT, async (req, res) => {
     });
   }
 
-  const t = await sequelize.transaction();
+  const t = await db.sequelize.transaction();
   try {
     try {
       const upload = await db.uploads.findOne({ where: { uid } });
@@ -197,14 +210,13 @@ app.post('/grades/confirm', authenticateJWT, async (req, res) => {
     try {
 
       // Step 1: Get institution id
-      const id_response = await requestTeacherInstitution(4);
-      const id = id_response?.[0]?.institution_id ?? null 
+      const id_response = await requestTeacherInstitution(instructor_id);
+      const institution_id = id_response?.[0]?.institution_id ?? null 
 
       // Step 2: Get balance '/:institutionId/credits'
-      const response = await axios.get(`http://localhost:3005/statistics/stats`, {
+      const response = await axios.get(`http://statistics:3000/statistics/stats`, {
         params: {
-            // student_id,
-            examination_id: id
+            examination_id: exam.id
         }
       });
 
@@ -284,6 +296,188 @@ app.post('/grades/cancel', authenticateJWT, async (req, res) => {
 });
 
 
+// Enhanced detailed grades endpoint with full context
+app.get('/grades/detailed', async (req, res) => {
+  const { student_id, state, include_teacher, include_institution } = req.query;
+
+  if (!student_id) {
+    return res.status(400).json({ error: 'Missing student_id parameter' });
+  }
+
+  try {
+    let whereClause = { student_id };
+    if (state) {
+      whereClause.state = state;
+    }
+
+    // Get grades with basic info
+    const grades = await db.grades.findAll({
+      where: whereClause,
+      order: [['id', 'DESC']] // Most recent first
+    });
+
+    const detailedGrades = [];
+
+    // For each grade, get related information with separate queries
+    for (const grade of grades) {
+      try {
+        // Get examination details
+        const examination = await db.examinations.findByPk(grade.examination_id);
+        
+        // Get teacher details if examination exists
+        let teacher = null;
+        if (examination && include_teacher !== 'false') {
+          teacher = await db.teachers.findByPk(examination.teacher_id);
+        }
+
+        // Get student details
+        const student = await db.students.findByPk(grade.student_id);
+
+        // Get institution details if requested
+        let teacherInstitution = null;
+        let studentInstitution = null;
+        if (include_institution === 'true') {
+          if (teacher) {
+            teacherInstitution = await db.institutions.findByPk(teacher.institution_id);
+          }
+          if (student) {
+            studentInstitution = await db.institutions.findByPk(student.institution_id);
+          }
+        }
+
+        const detailedGrade = {
+          id: grade.id,
+          value: grade.value,
+          state: grade.state,
+          state_description: grade.state === 'Open' ? 'Pending Review' : 
+                            grade.state === '1' ? 'Confirmed' : 
+                            grade.state === '0' ? 'Provisional' : grade.state,
+          course: examination ? {
+            id: examination.id,
+            name: examination.course,
+            semester: examination.semester,
+            code: `EX-${examination.id}`
+          } : {
+            id: grade.examination_id,
+            name: `Course ${grade.examination_id}`,
+            semester: 'Unknown',
+            code: `EX-${grade.examination_id}`
+          },
+          teacher: teacher ? {
+            id: teacher.id,
+            name: teacher.name,
+            surname: teacher.surname,
+            email: teacher.email,
+            full_name: `${teacher.name} ${teacher.surname}`,
+            institution: teacherInstitution ? {
+              id: teacherInstitution.id,
+              name: teacherInstitution.name
+            } : undefined
+          } : undefined,
+          student: student ? {
+            id: student.id,
+            name: student.name,
+            surname: student.surname,
+            email: student.email,
+            am: student.am,
+            full_name: `${student.name} ${student.surname}`,
+            institution: studentInstitution ? {
+              id: studentInstitution.id,
+              name: studentInstitution.name
+            } : undefined
+          } : undefined,
+          grade_status: {
+            is_passing: grade.value >= 5,
+            letter_grade: grade.value >= 9 ? 'A' : 
+                         grade.value >= 7 ? 'B' : 
+                         grade.value >= 5 ? 'C' : 
+                         grade.value >= 3 ? 'D' : 'F',
+            performance_level: grade.value >= 9 ? 'Excellent' : 
+                              grade.value >= 7 ? 'Very Good' : 
+                              grade.value >= 5 ? 'Good' : 
+                              grade.value >= 3 ? 'Poor' : 'Fail'
+          },
+          can_request_review: grade.value < 5 && grade.state === 'Open',
+          created_at: grade.createdAt || new Date().toISOString()
+        };
+
+        detailedGrades.push(detailedGrade);
+      } catch (err) {
+        console.error(`Error processing grade ${grade.id}:`, err);
+        // Add grade with basic info if detailed processing fails
+        detailedGrades.push({
+          id: grade.id,
+          value: grade.value,
+          state: grade.state,
+          state_description: grade.state === 'Open' ? 'Pending Review' : 
+                            grade.state === '1' ? 'Confirmed' : 
+                            grade.state === '0' ? 'Provisional' : grade.state,
+          course: {
+            id: grade.examination_id,
+            name: `Course ${grade.examination_id}`,
+            semester: 'Unknown',
+            code: `EX-${grade.examination_id}`
+          },
+          grade_status: {
+            is_passing: grade.value >= 5,
+            letter_grade: grade.value >= 9 ? 'A' : 
+                         grade.value >= 7 ? 'B' : 
+                         grade.value >= 5 ? 'C' : 
+                         grade.value >= 3 ? 'D' : 'F',
+            performance_level: grade.value >= 9 ? 'Excellent' : 
+                              grade.value >= 7 ? 'Very Good' : 
+                              grade.value >= 5 ? 'Good' : 
+                              grade.value >= 3 ? 'Poor' : 'Fail'
+          },
+          can_request_review: grade.value < 5 && grade.state === 'Open',
+          created_at: grade.createdAt || new Date().toISOString(),
+          error: 'Could not load full details'
+        });
+      }
+    }
+
+    // Calculate summary statistics
+    const summary = {
+      total_grades: detailedGrades.length,
+      average_grade: detailedGrades.length > 0 ? 
+        parseFloat((detailedGrades.reduce((sum, g) => sum + g.value, 0) / detailedGrades.length).toFixed(2)) : 0,
+      passed_grades: detailedGrades.filter(g => g.value >= 5).length,
+      failed_grades: detailedGrades.filter(g => g.value < 5).length,
+      pass_rate: detailedGrades.length > 0 ? 
+        parseFloat(((detailedGrades.filter(g => g.value >= 5).length / detailedGrades.length) * 100).toFixed(2)) : 0,
+      pending_reviews: detailedGrades.filter(g => g.can_request_review).length,
+      grade_distribution: {
+        excellent: detailedGrades.filter(g => g.value >= 9).length,
+        very_good: detailedGrades.filter(g => g.value >= 7 && g.value < 9).length,
+        good: detailedGrades.filter(g => g.value >= 5 && g.value < 7).length,
+        poor: detailedGrades.filter(g => g.value >= 3 && g.value < 5).length,
+        fail: detailedGrades.filter(g => g.value < 3).length
+      }
+    };
+
+    res.json({
+      student_id: parseInt(student_id),
+      grades: detailedGrades,
+      summary: summary,
+      filters_applied: {
+        state: state || 'all',
+        include_teacher: include_teacher !== 'false',
+        include_institution: include_institution === 'true'
+      },
+      total_count: detailedGrades.length,
+      generated_at: new Date().toISOString()
+    });
+
+  } catch (err) {
+    console.error('Error fetching detailed grades:', err);
+    res.status(500).json({ 
+      error: 'Internal server error',
+      message: 'Failed to fetch detailed grades: ' + err.message
+    });
+  }
+});
+
+// Keep original endpoint for backward compatibility  
 app.get('/grades/student', async (req, res) => {
   const { student_id, state } = req.query;
 

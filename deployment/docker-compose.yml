@@ -1,14 +1,21 @@
 services:
   clearsky-frontend:
-    build: ../clearsky-frontend
+    build: 
+      context: ../clearsky-frontend
+      dockerfile: Dockerfile.dev
     container_name: clearsky-frontend
     ports:
-      - "80:80"
+      - "5173:5173"
     networks:
       - app-network
     environment:
       - VITE_GOOGLE_CLIENT_ID=199976142604-rqvqemo7c1fkpiantvgdtendm3iomsq7.apps.googleusercontent.com
       - VITE_ENV=development
+    volumes:
+      - ../clearsky-frontend/src:/app/src
+      - ../clearsky-frontend/public:/app/public
+      - ../clearsky-frontend/index.html:/app/index.html
+      - ../clearsky-frontend/vite.config.js:/app/vite.config.js
 
   review:
     build:
@@ -17,6 +24,8 @@ services:
     container_name: review
     ports:
       - "3003:3000"
+    networks:
+      - app-network
     depends_on:
       - mysql
       - rabbitmq
@@ -35,6 +44,8 @@ services:
     container_name: grades
     ports:
       - "3002:3000"
+    networks:
+      - app-network
     depends_on:
       - mysql
       - rabbitmq
@@ -53,6 +64,8 @@ services:
     container_name: statistics
     ports:
       - "3001:3000"
+    networks:
+      - app-network
     depends_on:
       - mysql
       - rabbitmq
@@ -71,6 +84,8 @@ services:
     container_name: user-management
     ports:
       - "3004:3000"
+    networks:
+      - app-network
     depends_on:
       - mysql
     environment:
@@ -87,6 +102,8 @@ services:
     container_name: institution-service
     ports:
       - "3005:3000"
+    networks:
+      - app-network
     depends_on:
       - mysql
       - rabbitmq
@@ -102,11 +119,13 @@ services:
     image: mysql:8
     container_name: mysql
     restart: always
+    networks:
+      - app-network
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: clearsky
     ports:
-      - "3306:3306"
+      - "3309:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./mysql-init:/docker-entrypoint-initdb.d
@@ -114,6 +133,8 @@ services:
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     restart: always
+    networks:
+      - app-network
     ports:
       - "8080:80"
     environment:
@@ -125,10 +146,12 @@ services:
 
   rabbitmq:
     image: rabbitmq:3-management
-    # container_name: rabbitmq
+    container_name: rabbitmq
     ports:
       - "5672:5672"     # AMQP
       - "15672:15672"   # Management UI
+    networks:
+      - app-network
     volumes:
       - ./rabbitmq-defs:/etc/rabbitmq/definitions
     environment:

@@ -3,13 +3,15 @@ const db = require('./models');
 
 const amqpUrl = process.env.RABBITMQ_URL;
 
-async function waitForRabbitMQ(url, retries = 10, delay = 3000) {
+async function waitForRabbitMQ(url, retries = 15, delay = 5000) {
   for (let i = 0; i < retries; i++) {
     try {
-      const connection = await amqp.connect(url);
+      console.log(`Attempting to connect to RabbitMQ at ${url} (attempt ${i + 1}/${retries})`);
+      const connection = await amqp.connect(url + '?heartbeat=60');
+      console.log('Successfully connected to RabbitMQ!');
       return connection;
     } catch (err) {
-      console.log(`RabbitMQ not ready (attempt ${i + 1}/${retries}). Retrying in ${delay}ms...`);
+      console.log(`RabbitMQ connection failed: ${err.message}. Retrying in ${delay}ms...`);
       await new Promise(res => setTimeout(res, delay));
     }
   }

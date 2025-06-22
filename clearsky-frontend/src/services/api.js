@@ -1,23 +1,25 @@
-// API Service Module
-// This is a mock implementation. Replace with actual API calls in production.
+// API Service Module - Complete Integration with All Microservices
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
+// Base URLs for all microservices - Direct service URLs with CORS headers
+const USER_MANAGEMENT_URL = 'http://localhost:3004'
+const GRADES_SERVICE_URL = 'http://localhost:3002'
+const STATISTICS_SERVICE_URL = 'http://localhost:3001'
+const REVIEW_SERVICE_URL = 'http://localhost:3003'
+const INSTITUTION_SERVICE_URL = 'http://localhost:3005'
 
 // Helper function for API calls
-async function apiCall(endpoint, options = {}) {
+async function apiCall(url, options = {}) {
   const token = localStorage.getItem('clearsky_auth_token') || localStorage.getItem('clearsky_token')
-  const user = JSON.parse(localStorage.getItem('clearsky_user') || '{}')
   
   const defaultOptions = {
     headers: {
       'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-      ...(user.authMethod && { 'X-Auth-Method': user.authMethod })
+      ...(token && { Authorization: `Bearer ${token}` })
     }
   }
   
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetch(url, {
       ...defaultOptions,
       ...options,
       headers: {
@@ -27,7 +29,8 @@ async function apiCall(endpoint, options = {}) {
     })
     
     if (!response.ok) {
-      throw new Error(`API Error: ${response.status}`)
+      const errorText = await response.text()
+      throw new Error(`API Error: ${response.status} - ${errorText}`)
     }
     
     return await response.json()
@@ -37,90 +40,217 @@ async function apiCall(endpoint, options = {}) {
   }
 }
 
-// Authentication
-export const authAPI = {
-  login: async (email, password, role) => {
-    // Mock implementation
-    return apiCall('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password, role })
-    })
-  },
+// Helper for FormData requests (file uploads)
+async function apiCallFormData(url, formData) {
+  const token = localStorage.getItem('clearsky_auth_token') || localStorage.getItem('clearsky_token')
   
-  logout: async () => {
-    return apiCall('/auth/logout', { method: 'POST' })
-  }
-}
-
-// Grades
-export const gradesAPI = {
-  uploadGrades: async (formData) => {
-    return apiCall('/grades/upload', {
+  try {
+    const response = await fetch(url, {
       method: 'POST',
-      headers: {}, // Let browser set content-type for FormData
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` })
+      },
       body: formData
     })
-  },
-  
-  getStudentGrades: async (studentId) => {
-    return apiCall(`/grades/student/${studentId}`)
-  },
-  
-  getCourseGrades: async (courseId) => {
-    return apiCall(`/grades/course/${courseId}`)
+    
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new Error(`API Error: ${response.status} - ${errorText}`)
+    }
+    
+    return await response.json()
+  } catch (error) {
+    console.error('API call failed:', error)
+    throw error
   }
 }
 
-// Review Requests
+// User Management Service APIs
+export const userAPI = {
+  // Register user with role (instructor, student, representative)
+  register: async (userData, role) => {
+    return apiCall(`${USER_MANAGEMENT_URL}/users/register/${role}`, {
+      method: 'POST',
+      body: JSON.stringify(userData)
+    })
+  },
+  
+  // Login user
+  login: async (email) => {
+    return apiCall(`${USER_MANAGEMENT_URL}/users/login`, {
+      method: 'POST',
+      body: JSON.stringify({ email })
+    })
+  },
+  
+  // Get instructor by ID
+  getInstructor: async (id) => {
+    return apiCall(`${USER_MANAGEMENT_URL}/users/instructor?id=${id}`)
+  },
+  
+  // Get student by ID
+  getStudent: async (id) => {
+    return apiCall(`${USER_MANAGEMENT_URL}/users/student?id=${id}`)
+  },
+  
+  // Get all users for an institution
+  getInstitutionUsers: async (institutionId) => {
+    return apiCall(`${USER_MANAGEMENT_URL}/users/institutionUsers?institutionId=${institutionId}`)
+  }
+}
+
+// Grades Service APIs
+export const gradesAPI = {
+  // Test endpoint
+  test: async () => {
+    return apiCall(`${GRADES_SERVICE_URL}/grades/test`)
+  },
+  
+  // Upload grades file
+  uploadGrades: async (formData) => {
+    return apiCallFormData(`${GRADES_SERVICE_URL}/grades/upload`, formData)
+  },
+  
+  // Confirm uploaded grades
+  confirmGrades: async (uid) => {
+    return apiCall(`${GRADES_SERVICE_URL}/grades/confirm`, {
+      method: 'POST',
+      body: JSON.stringify({ uid })
+    })
+  },
+  
+  // Cancel upload
+  cancelUpload: async (uid) => {
+    return apiCall(`${GRADES_SERVICE_URL}/grades/cancel`, {
+      method: 'POST',
+      body: JSON.stringify({ uid })
+    })
+  },
+  
+  // Get grades for a student
+  getStudentGrades: async (studentId, state = null) => {
+    const params = new URLSearchParams({ student_id: studentId })
+    if (state) params.append('state', state)
+    return apiCall(`${GRADES_SERVICE_URL}/grades/student?${params}`)
+  },
+  
+  // Get grades for an examination
+  getExaminationGrades: async (examinationId) => {
+    return apiCall(`${GRADES_SERVICE_URL}/grades/examination?examination_id=${examinationId}`)
+  },
+  
+  // Get examinations for instructor or student
+  getInstructorExaminations: async (id, role) => {
+    return apiCall(`${GRADES_SERVICE_URL}/grades/instructor-examinations?id=${id}&role=${role}`)
+  }
+}
+
+// Statistics Service APIs
+export const statisticsAPI = {
+  // Get statistics for an examination
+  getStats: async (examinationId = null) => {
+    const params = examinationId ? `?examination_id=${examinationId}` : ''
+    return apiCall(`${STATISTICS_SERVICE_URL}/statistics/stats${params}`)
+  }
+}
+
+// Review Management Service APIs
 export const reviewsAPI = {
-  createRequest: async (gradeId, reason) => {
-    return apiCall('/reviews/request', {
+  // Create a new review request
+  createReview: async (gradeId, message) => {
+    return apiCall(`${REVIEW_SERVICE_URL}/reviews/new`, {
       method: 'POST',
-      body: JSON.stringify({ gradeId, reason })
+      body: JSON.stringify({ gradeId, message })
     })
   },
   
-  getRequests: async (instructorId) => {
-    return apiCall(`/reviews/instructor/${instructorId}`)
+  // Get reviews (filtered by user role)
+  getReviews: async (state = null) => {
+    // Use detailed endpoint for richer data including student/course info
+    const url = state ? `${REVIEW_SERVICE_URL}/reviews/detailed?state=${encodeURIComponent(state)}` : `${REVIEW_SERVICE_URL}/reviews/detailed`
+    return apiCall(url, {
+      method: 'GET'
+    })
   },
   
-  respondToRequest: async (requestId, response) => {
-    return apiCall(`/reviews/${requestId}/respond`, {
+  // Respond to a review request
+  respondToReview: async (reviewId, action, newGrade, response) => {
+    return apiCall(`${REVIEW_SERVICE_URL}/reviews/${reviewId}/response`, {
       method: 'POST',
-      body: JSON.stringify(response)
+      body: JSON.stringify({ action, newGrade, response })
     })
   }
 }
 
-// Statistics
-export const statsAPI = {
-  getCourseStats: async (courseId, period) => {
-    return apiCall(`/stats/course/${courseId}?period=${period}`)
+// Institution Service APIs
+export const institutionAPI = {
+  // Get all institutions
+  getAllInstitutions: async () => {
+    return apiCall(`${INSTITUTION_SERVICE_URL}/`)
   },
   
-  getInstitutionStats: async () => {
-    return apiCall('/stats/institution')
-  },
-  
-  // New endpoint for statistics
-  getExamStats: async (data = {}) => {
-    // If it's a POST endpoint
-    return apiCall('/statistics/stat', {
-      method: 'GET',
-      body: JSON.stringify(data)
+  // Create new institution
+  createInstitution: async (name, address = null, contactEmail = null) => {
+    return apiCall(`${INSTITUTION_SERVICE_URL}/`, {
+      method: 'POST',
+      body: JSON.stringify({ name, address, contactEmail })
     })
   },
   
-  // If it's a GET endpoint
-  getExamStatsGet: async (studentId, examinationId) => {
-    return apiCall(`/statistics/stat?student_id=${studentId}&examination_id=${examinationId}`)
+  // Get institution by ID
+  getInstitution: async (institutionId) => {
+    return apiCall(`${INSTITUTION_SERVICE_URL}/institutions/${institutionId}`)
+  },
+  
+  // Delete institution
+  deleteInstitution: async (institutionId) => {
+    return apiCall(`${INSTITUTION_SERVICE_URL}/institutions/${institutionId}`, {
+      method: 'DELETE'
+    })
+  },
+  
+  // Get institution credits
+  getCredits: async (institutionId) => {
+    return apiCall(`${INSTITUTION_SERVICE_URL}/institutions/${institutionId}/credits`)
+  },
+  
+  // Purchase credits
+  purchaseCredits: async (institutionId, amount) => {
+    return apiCall(`${INSTITUTION_SERVICE_URL}/institutions/${institutionId}/credits/purchase`, {
+      method: 'POST',
+      body: JSON.stringify({ amount })
+    })
+  },
+  
+  // Consume credits
+  consumeCredits: async (institutionId, amount) => {
+    return apiCall(`${INSTITUTION_SERVICE_URL}/institutions/${institutionId}/credits/consume`, {
+      method: 'POST',
+      body: JSON.stringify({ amount })
+    })
   }
 }
+
+// Legacy API exports for backward compatibility
+export const authAPI = {
+  login: userAPI.login,
+  logout: () => {
+    localStorage.removeItem('clearsky_auth_token')
+    localStorage.removeItem('clearsky_token')
+    localStorage.removeItem('clearsky_user')
+    return Promise.resolve({ success: true })
+  }
+}
+
+export const statsAPI = statisticsAPI
 
 // Export all APIs
 export default {
+  user: userAPI,
   auth: authAPI,
   grades: gradesAPI,
+  statistics: statisticsAPI,
   reviews: reviewsAPI,
+  institution: institutionAPI,
   stats: statsAPI
 }
