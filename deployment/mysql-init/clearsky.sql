@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: mysql
--- Generation Time: Jun 21, 2025 at 11:15 AM
+-- Generation Time: Jun 22, 2025 at 03:24 PM
 -- Server version: 8.4.5
 -- PHP Version: 8.2.27
 
@@ -45,8 +45,8 @@ CREATE TABLE `credentials` (
 CREATE TABLE `examinations` (
   `id` int NOT NULL,
   `teacher_id` int NOT NULL,
-  `course` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `semester` varchar(255) COLLATE utf8mb4_general_ci NOT NULL
+  `course` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `semester` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -59,9 +59,7 @@ INSERT INTO `examinations` (`id`, `teacher_id`, `course`, `semester`) VALUES
 (6, 8, 'Ηλεκτρονική Φυσική', 'Χειμερινό 2025'),
 (7, 10, 'Δίκτυα Υπολογιστών', 'Χειμερινό 2025'),
 (8, 12, 'Μηχανική Λογισμικού', 'Χειμερινό 2025'),
-(9, 13, 'ΤΕΧΝΟΛΟΓΙΑ ΛΟΓΙΣΜΙΚΟΥ   (3205)', '2024-2025 ΧΕΙΜ 2024'),
-(10, 13, 'ΤΕΧΝΟΛΟΓΙΑ ΛΟΓΙΣΜΙΚΟΥ   (3205)', '2024-2025 ΧΕΙΜ 2024'),
-(11, 13, 'ΤΕΧΝΟΛΟΓΙΑ ΛΟΓΙΣΜΙΚΟΥ   (3205)', '2024-2025 ΧΕΙΜ 2024');
+(12, 4, 'ΤΕΧΝΟΛΟΓΙΑ ΛΟΓΙΣΜΙΚΟΥ   (3205)', '2024-2025 ΧΕΙΜ 2024');
 
 -- --------------------------------------------------------
 
@@ -74,7 +72,7 @@ CREATE TABLE `grades` (
   `student_id` int NOT NULL,
   `examination_id` int NOT NULL,
   `value` int NOT NULL,
-  `state` varchar(255) COLLATE utf8mb4_general_ci NOT NULL
+  `state` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -91,7 +89,108 @@ INSERT INTO `grades` (`id`, `student_id`, `examination_id`, `value`, `state`) VA
 (13, 10, 7, 9, '0'),
 (14, 11, 7, 10, '0'),
 (15, 12, 8, 7, '0'),
-(16, 13, 8, 8, '0');
+(16, 13, 8, 8, '0'),
+(17, 14, 12, 6, 'Open'),
+(18, 15, 12, 5, 'Open'),
+(19, 16, 12, 5, 'Open'),
+(20, 17, 12, 6, 'Open'),
+(21, 18, 12, 7, 'Open'),
+(22, 19, 12, 6, 'Open'),
+(23, 20, 12, 6, 'Open'),
+(24, 21, 12, 5, 'Open'),
+(25, 22, 12, 6, 'Open'),
+(26, 23, 12, 6, 'Open'),
+(27, 24, 12, 5, 'Open'),
+(28, 25, 12, 6, 'Open'),
+(29, 26, 12, 6, 'Open'),
+(30, 27, 12, 6, 'Open'),
+(31, 28, 12, 6, 'Open'),
+(32, 29, 12, 7, 'Open'),
+(33, 30, 12, 5, 'Open'),
+(34, 31, 12, 7, 'Open'),
+(35, 32, 12, 6, 'Open'),
+(36, 33, 12, 6, 'Open'),
+(37, 34, 12, 6, 'Open'),
+(38, 35, 12, 7, 'Open'),
+(39, 36, 12, 6, 'Open'),
+(40, 37, 12, 6, 'Open'),
+(41, 38, 12, 6, 'Open'),
+(42, 39, 12, 6, 'Open'),
+(43, 40, 12, 6, 'Open'),
+(44, 41, 12, 6, 'Open'),
+(45, 42, 12, 7, 'Open'),
+(46, 43, 12, 6, 'Open'),
+(47, 44, 12, 5, 'Open'),
+(48, 45, 12, 6, 'Open'),
+(49, 46, 12, 6, 'Open'),
+(50, 47, 12, 5, 'Open'),
+(51, 48, 12, 6, 'Open'),
+(52, 49, 12, 5, 'Open'),
+(53, 50, 12, 6, 'Open'),
+(54, 51, 12, 7, 'Open'),
+(55, 52, 12, 6, 'Open'),
+(56, 53, 12, 6, 'Open'),
+(57, 54, 12, 5, 'Open'),
+(58, 55, 12, 7, 'Open'),
+(59, 56, 12, 5, 'Open'),
+(60, 57, 12, 7, 'Open'),
+(61, 58, 12, 6, 'Open'),
+(62, 59, 12, 6, 'Open'),
+(63, 60, 12, 5, 'Open'),
+(64, 61, 12, 7, 'Open'),
+(65, 62, 12, 7, 'Open'),
+(66, 63, 12, 5, 'Open'),
+(67, 64, 12, 6, 'Open'),
+(68, 65, 12, 6, 'Open'),
+(69, 66, 12, 6, 'Open'),
+(70, 67, 12, 6, 'Open'),
+(71, 68, 12, 5, 'Open'),
+(72, 69, 12, 7, 'Open'),
+(73, 70, 12, 6, 'Open'),
+(74, 71, 12, 6, 'Open'),
+(75, 72, 12, 5, 'Open'),
+(76, 73, 12, 6, 'Open'),
+(77, 74, 12, 5, 'Open'),
+(78, 75, 12, 6, 'Open'),
+(79, 76, 12, 6, 'Open'),
+(80, 77, 12, 6, 'Open'),
+(81, 78, 12, 5, 'Open'),
+(82, 79, 12, 6, 'Open'),
+(83, 80, 12, 6, 'Open'),
+(84, 81, 12, 6, 'Open'),
+(85, 82, 12, 6, 'Open'),
+(86, 83, 12, 6, 'Open'),
+(87, 84, 12, 6, 'Open'),
+(88, 85, 12, 6, 'Open'),
+(89, 86, 12, 7, 'Open'),
+(90, 87, 12, 6, 'Open'),
+(91, 88, 12, 6, 'Open'),
+(92, 89, 12, 6, 'Open'),
+(93, 90, 12, 6, 'Open'),
+(94, 91, 12, 6, 'Open'),
+(95, 92, 12, 6, 'Open'),
+(96, 93, 12, 6, 'Open'),
+(97, 94, 12, 5, 'Open'),
+(98, 95, 12, 6, 'Open'),
+(99, 96, 12, 6, 'Open'),
+(100, 97, 12, 6, 'Open'),
+(101, 98, 12, 7, 'Open'),
+(102, 99, 12, 6, 'Open'),
+(103, 100, 12, 6, 'Open'),
+(104, 101, 12, 7, 'Open'),
+(105, 102, 12, 5, 'Open'),
+(106, 103, 12, 7, 'Open'),
+(107, 104, 12, 5, 'Open'),
+(108, 105, 12, 6, 'Open'),
+(109, 106, 12, 5, 'Open'),
+(110, 107, 12, 6, 'Open'),
+(111, 108, 12, 5, 'Open'),
+(112, 109, 12, 6, 'Open'),
+(113, 110, 12, 6, 'Open'),
+(114, 111, 12, 6, 'Open'),
+(115, 112, 12, 6, 'Open'),
+(116, 113, 12, 5, 'Open'),
+(117, 114, 12, 6, 'Open');
 
 -- --------------------------------------------------------
 
@@ -101,7 +200,7 @@ INSERT INTO `grades` (`id`, `student_id`, `examination_id`, `value`, `state`) VA
 
 CREATE TABLE `institutions` (
   `id` int NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `tokens` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -140,7 +239,10 @@ INSERT INTO `logs` (`id`, `uid`, `teacher_id`, `action`, `message`, `created_at`
 (1, '6d8b9249-00ea-41d6-8857-61035de7d90a', 13, 'upload', 'Upload with uid 6d8b9249-00ea-41d6-8857-61035de7d90a by instructor_id: 13', '2025-06-20 12:07:11'),
 (2, '2bade137-d093-4309-9fc0-cce7899f7814', 13, 'cancel', 'Upload with uid 2bade137-d093-4309-9fc0-cce7899f7814 has been canceled by instructor_id: 13', '2025-06-20 12:18:09'),
 (3, '38c6c227-21e3-49b8-b45b-dba58f0debbf', 13, 'upload', 'Upload with uid 38c6c227-21e3-49b8-b45b-dba58f0debbf by instructor_id: 13', '2025-06-20 12:26:42'),
-(4, '38c6c227-21e3-49b8-b45b-dba58f0debbf', 13, 'confirm', 'Grades confirmed by instructor: 13', '2025-06-20 12:33:42');
+(4, '38c6c227-21e3-49b8-b45b-dba58f0debbf', 13, 'confirm', 'Grades confirmed by instructor: 13', '2025-06-20 12:33:42'),
+(5, '8aba2c04-317b-48ba-b440-9c6298f7c71d', 4, 'upload', 'Upload with uid 8aba2c04-317b-48ba-b440-9c6298f7c71d by instructor_id: 4', '2025-06-22 11:36:33'),
+(6, '8aba2c04-317b-48ba-b440-9c6298f7c71d', 4, 'confirm', 'Grades confirmed by instructor: 4', '2025-06-22 11:36:57'),
+(7, 'c6128a2a-8fa8-4f88-a074-75cc74fe65c3', 4, 'upload', 'Upload with uid c6128a2a-8fa8-4f88-a074-75cc74fe65c3 by instructor_id: 4', '2025-06-22 14:58:37');
 
 -- --------------------------------------------------------
 
@@ -151,9 +253,9 @@ INSERT INTO `logs` (`id`, `uid`, `teacher_id`, `action`, `message`, `created_at`
 CREATE TABLE `representatives` (
   `id` int NOT NULL,
   `institution_id` int NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `surname` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `email` varchar(255) COLLATE utf8mb4_general_ci NOT NULL
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `surname` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -165,9 +267,9 @@ CREATE TABLE `representatives` (
 CREATE TABLE `reviews` (
   `id` int NOT NULL,
   `grade_id` int NOT NULL,
-  `request_message` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `response_message` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `state` enum('Pending','Accepted','Rejected','') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'Pending'
+  `request_message` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `response_message` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `state` enum('Pending','Accepted','Rejected','') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'Pending'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -194,10 +296,10 @@ INSERT INTO `reviews` (`id`, `grade_id`, `request_message`, `response_message`, 
 CREATE TABLE `students` (
   `id` int NOT NULL,
   `institution_id` int NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `surname` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `email` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `am` varchar(255) COLLATE utf8mb4_general_ci NOT NULL
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `surname` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `am` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -326,9 +428,9 @@ INSERT INTO `students` (`id`, `institution_id`, `name`, `surname`, `email`, `am`
 CREATE TABLE `teachers` (
   `id` int NOT NULL,
   `institution_id` int NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `surname` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `email` varchar(255) COLLATE utf8mb4_general_ci NOT NULL
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `surname` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -369,10 +471,15 @@ CREATE TABLE `tokens` (
 
 CREATE TABLE `uploads` (
   `id` int NOT NULL,
-  `uid` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `uid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `file` blob NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `uploads`
+--
+
+--
 -- Indexes for dumped tables
 --
 
@@ -467,13 +574,13 @@ ALTER TABLE `credentials`
 -- AUTO_INCREMENT for table `examinations`
 --
 ALTER TABLE `examinations`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `grades`
 --
 ALTER TABLE `grades`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=118;
 
 --
 -- AUTO_INCREMENT for table `institutions`
@@ -485,7 +592,7 @@ ALTER TABLE `institutions`
 -- AUTO_INCREMENT for table `logs`
 --
 ALTER TABLE `logs`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `representatives`
@@ -521,7 +628,7 @@ ALTER TABLE `tokens`
 -- AUTO_INCREMENT for table `uploads`
 --
 ALTER TABLE `uploads`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- Constraints for dumped tables

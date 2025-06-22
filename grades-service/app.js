@@ -197,13 +197,8 @@ app.post('/grades/confirm', authenticateJWT, async (req, res) => {
     try {
 
       // Step 1: Get institution id
-<<<<<<< HEAD
-      const id = await requestTeacherInstitution(instructor_id);
-      id = id?.[0]?.institution_id ?? null;
-=======
       const id_response = await requestTeacherInstitution(4);
       const id = id_response?.[0]?.institution_id ?? null 
->>>>>>> 5d5a87afc31a176f96131c18cc064e4a440586fa
 
       // Step 2: Get balance '/:institutionId/credits'
       const response = await axios.get(`http://localhost:3005/statistics/stats`, {
