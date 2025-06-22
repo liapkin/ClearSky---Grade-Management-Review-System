@@ -79,12 +79,12 @@ router.get('/:institutionId/credits', async (req, res) => {
     const tokens = await db.institutions.findByPk(institutionId, {
       attributes: ['tokens']
     });
-    
     return res.json(tokens);
   } catch (err) {
     return res.status(500).json({ error: 'Database error' });
   }
 });
+
 
 router.post('/:institutionId/credits/purchase', async (req, res) => {
   const institutionId = req.params.institutionId;

@@ -1,5 +1,6 @@
 const db = require('./models');
 
+const axios = require('axios');
 const express = require('express');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
@@ -18,13 +19,22 @@ if (!fs.existsSync('uploads')) {
 }
 
 app.get('/grades/test', async (req, res) => {
-  const id = await requestTeacherInstitution(4);
-  console.log('Teacher Institution ID:', id);
-  return res.json({
-      success: true,
-      id: id?.[0]?.institution_id ?? null
-  });
+    try {
+    const id = await requestTeacherInstitution(4);
+    console.log('Teacher Institution ID:', id);
+    const Yid = id?.[0]?.institution_id ?? null;
+    console.log('Actual Institution ID:', Yid);
+    
+    const response = await axios.get(`http://localhost:3005/institutions/${Yid}/credits`);
+    const tokens = response.data.tokens;
+    console.log('Current balance:', tokens);
 
+    return res.json('all fine');
+  }
+  catch (err) {
+    console.error('Error fetching institution ID:', err);
+    return res.json('all wrong');
+  }
 });
 
 app.post('/grades/upload', authenticateJWT, upload.single('file'), async (req, res) => {
@@ -184,11 +194,11 @@ app.post('/grades/confirm', authenticateJWT, async (req, res) => {
       throw new Error('Error confirming grades: ' + err.message);
     }
 
-    try { // ToDo: Charging the User 
+    try {
 
       // Step 1: Get institution id
-      /* const id = await requestTeacherInstitution(4);
-        id: id?.[0]?.institution_id ?? null */
+      const id_response = await requestTeacherInstitution(4);
+      const id = id_response?.[0]?.institution_id ?? null 
 
       // Step 2: Get balance '/:institutionId/credits'
 
