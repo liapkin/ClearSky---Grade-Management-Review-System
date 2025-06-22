@@ -96,6 +96,14 @@ export const userAPI = {
   // Get all users for an institution
   getInstitutionUsers: async (institutionId) => {
     return apiCall(`${USER_MANAGEMENT_URL}/users/institutionUsers?institutionId=${institutionId}`)
+  },
+  
+  // Register user with Google OAuth (for students)
+  registerWithGoogle: async (userData, role) => {
+    return apiCall(`${USER_MANAGEMENT_URL}/users/register-google/${role}`, {
+      method: 'POST',
+      body: JSON.stringify(userData)
+    })
   }
 }
 

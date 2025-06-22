@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { userAPI, institutionAPI } from '../services/api'
 import { mapInstitutionResponse } from '../utils/responseMappers'
+import GoogleAuthButton from './GoogleAuthButton'
 
 function UserManagement({ onLoginSuccess }) {
   const [activeTab, setActiveTab] = useState('login')
@@ -117,6 +118,42 @@ function UserManagement({ onLoginSuccess }) {
     })
   }
 
+  const handleGoogleSignup = async (googleUser) => {
+    console.log('Google demo login started with user:', googleUser)
+    setLoading(true)
+    setMessage('Signing in with Google...')
+    
+    try {
+      // Create a demo user object with Google data
+      const demoUser = {
+        id: googleUser.id,
+        email: googleUser.email,
+        name: googleUser.name,
+        picture: googleUser.picture,
+        role: 'STUDENT',
+        institution: 'Demo Institution',
+        authMethod: 'google'
+      }
+      
+      // Store demo user data
+      localStorage.setItem('clearsky_user', JSON.stringify(demoUser))
+      localStorage.setItem('clearsky_auth_token', 'demo-google-token-' + googleUser.id)
+      
+      setMessage('Google Sign-In successful! Redirecting to dashboard...')
+      
+      if (onLoginSuccess) {
+        setTimeout(() => {
+          onLoginSuccess(demoUser)
+        }, 1000)
+      }
+    } catch (error) {
+      console.error('Google demo login error:', error)
+      setMessage('Google Sign-In failed: ' + error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="user-management">
       <div className="auth-container">
@@ -162,6 +199,19 @@ function UserManagement({ onLoginSuccess }) {
                 {loading ? 'Logging in...' : 'Login'}
               </button>
             </form>
+            
+            <div className="auth-divider">
+              <span>or</span>
+            </div>
+            
+            <div className="google-auth-section">
+              <h3>Demo: Sign in with Google</h3>
+              <p>Click to sign in with your Google account and see the dashboard (demo mode)</p>
+              <GoogleAuthButton 
+                onLoginSuccess={handleGoogleSignup}
+                selectedRole="STUDENT"
+              />
+            </div>
           </div>
         )}
 
@@ -364,6 +414,48 @@ function UserManagement({ onLoginSuccess }) {
           background: #f8d7da;
           color: #721c24;
           border: 1px solid #f5c6cb;
+        }
+
+        .auth-divider {
+          text-align: center;
+          margin: 2rem 0;
+          position: relative;
+          color: #666;
+        }
+
+        .auth-divider::before {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 0;
+          right: 0;
+          height: 1px;
+          background: #ddd;
+          z-index: 1;
+        }
+
+        .auth-divider span {
+          background: white;
+          padding: 0 1rem;
+          position: relative;
+          z-index: 2;
+        }
+
+        .google-auth-section {
+          text-align: center;
+          padding: 1.5rem 0;
+        }
+
+        .google-auth-section h3 {
+          margin: 0 0 0.5rem 0;
+          color: #333;
+          font-size: 1.1rem;
+        }
+
+        .google-auth-section p {
+          margin: 0 0 1rem 0;
+          color: #666;
+          font-size: 0.9rem;
         }
       `}</style>
     </div>

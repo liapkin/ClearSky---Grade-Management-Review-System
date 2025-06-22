@@ -63,9 +63,65 @@ app.post('/users/register/:role', async (req, res) => {
 
   } catch (err) {
     console.error('Σφάλμα στη δημιουργία χρήστη:', err);
+    
+    // Check if error is due to duplicate email
+    if (err.name === 'SequelizeUniqueConstraintError' || err.original?.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ success: false, error: 'Email already exists' });
+    }
+    
     res.status(500).json({ success: false, error: 'Σφάλμα διακομιστή' });
   }
 });
+
+app.post('/users/register-google/:role', async (req, res) => {
+  try {
+    const { first_name, last_name, email, institution_id, google_id, picture } = req.body;
+    const { role } = req.params;
+
+    if (!['instructor', 'student', 'representative'].includes(role)) {
+      return res.status(400).json({ error: 'Invalid role' });
+    }
+
+    // For Google registration, we mainly handle students
+    if (role === 'student') {
+      // Check if user already exists by email
+      const existingStudent = await db.students.findOne({ where: { email } });
+      
+      if (existingStudent) {
+        return res.status(409).json({ success: false, error: 'Email already exists' });
+      }
+
+      const newStudent = await db.students.create({
+        institution_id: institution_id,
+        name: first_name,
+        surname: last_name,
+        email: email,
+        am: generateStudentAM(email) // Generate a unique student AM
+      });
+      
+      return res.status(201).json({ success: true, data: newStudent });
+    }
+    
+    return res.status(400).json({ error: 'Google registration currently only supports students' });
+
+  } catch (err) {
+    console.error('Google registration error:', err);
+    
+    if (err.name === 'SequelizeUniqueConstraintError' || err.original?.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ success: false, error: 'Email already exists' });
+    }
+    
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
+// Helper function to generate student AM from email
+function generateStudentAM(email) {
+  // Extract relevant parts from email for AM generation
+  const emailPrefix = email.split('@')[0];
+  const timestamp = Date.now().toString().slice(-6);
+  return emailPrefix.slice(0, 4) + timestamp;
+}
 
 
 app.get('/users/instructor', async (req, res) => {

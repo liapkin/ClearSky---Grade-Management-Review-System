@@ -12,6 +12,8 @@ function GoogleAuthButton({ onLoginSuccess, selectedRole }) {
         callback: handleCredentialResponse,
         auto_select: false,
         cancel_on_tap_outside: true,
+        use_fedcm_for_prompt: false,
+        itp_support: true,
       })
 
       // Render the button
@@ -24,43 +26,45 @@ function GoogleAuthButton({ onLoginSuccess, selectedRole }) {
             size: 'large',
             text: 'signin_with',
             width: '100%',
+            shape: 'rectangular',
+            logo_alignment: 'left'
           }
         )
+      }
+
+      // Also try to show One Tap if the button doesn't work
+      try {
+        google.accounts.id.prompt((notification) => {
+          console.log('One Tap notification:', notification)
+        })
+      } catch (err) {
+        console.log('One Tap not available:', err)
       }
     }
   }, [selectedRole])
 
   const handleCredentialResponse = (response) => {
     try {
+      console.log('Google credential response received:', response)
       // Decode the JWT token from Google
       const userInfo = decodeJwtResponse(response.credential)
+      console.log('Decoded user info:', userInfo)
       
-      // Determine institution from email domain
-      const emailDomain = userInfo.email.split('@')[1]
-      const institution = emailDomain.includes('ntua') ? 'NTUA' : 
-                         emailDomain.includes('uoa') ? 'University of Athens' : 
-                         'Unknown Institution'
-      
-      // Create user object
-      const user = {
+      // Create user object with Google data
+      const googleUser = {
         id: userInfo.sub, // Google user ID
         email: userInfo.email,
         name: userInfo.name,
         picture: userInfo.picture,
-        role: selectedRole || 'STUDENT', // Default to student if no role selected
-        institution: institution,
         authMethod: 'google'
       }
       
-      // Store user data
-      localStorage.setItem('clearsky_user', JSON.stringify(user))
-      localStorage.setItem('clearsky_auth_token', response.credential)
-      
       if (onLoginSuccess) {
-        onLoginSuccess(user)
+        onLoginSuccess(googleUser)
       }
     } catch (error) {
       console.error('Google login error:', error)
+      alert('Google sign-in failed. Please try again or use the regular registration form.')
     }
   }
 
@@ -76,6 +80,7 @@ function GoogleAuthButton({ onLoginSuccess, selectedRole }) {
     )
     return JSON.parse(jsonPayload)
   }
+
 
   return (
     <div className="google-auth-button">
