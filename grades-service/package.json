@@ -10,10 +10,11 @@
   "license": "ISC",
   "description": "(description)",
   "dependencies": {
-    "jsonwebtoken": "^9.0.2",
     "amqplib": "^0.10.8",
+    "axios": "^1.10.0",
     "exceljs": "^4.4.0",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.0",
     "mysql2": "^3.14.1",
     "sequelize": "^6.37.7",
