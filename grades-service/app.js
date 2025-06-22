@@ -201,6 +201,12 @@ app.post('/grades/confirm', authenticateJWT, async (req, res) => {
       const id = id_response?.[0]?.institution_id ?? null 
 
       // Step 2: Get balance '/:institutionId/credits'
+      const response = await axios.get(`http://localhost:3005/statistics/stats`, {
+        params: {
+            // student_id,
+            examination_id: id
+        }
+      });
 
       // Step 3: If balance > amount_we_charge -> proceed
       //         else ...

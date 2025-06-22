@@ -29,7 +29,7 @@ app.get('/statistics/stats', authenticateJWT, async (req, res) => {
             const grades = await requestGrades(examination_id);
 
             if (grades.length === 0) {
-                return res.status(404).json({ message: `No grades found for student_id: ${student_id}` });
+                return res.status(404).json({ message: `No grades found for examination_id: ${examination_id}` });
             }
 
             const passed = grades.filter(g => g.value >= 5).length;
