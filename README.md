@@ -1,15 +1,12 @@
-# SAAS 2025 ECE NTUA
 
-# Ομάδα 41
+Σχεδιασμός και τεκμηρίωση (SRS, Διαγράμματα UML)
 
-Αθανασίου Φαίδων
+Full stack developement με microservices technology 
 
-Αλεξανδρόπουλος Κωνσταντίνος
+Docker containerized development and deployment 
 
-Αλεξανδρόπουλος Νικόλαος
+Messaging between services with RabbitMQ
 
-Ιατράκης Δημήτρης
+Μάθημα SAAS 2025 ECE NTUA
 
-Λιαπάκης Κωνσταντίνος
-
-Παυλίδου Στέλλα
+Αθανασίου Φαίδων, Αλεξανδρόπουλος Κωνσταντίνος, Αλεξανδρόπουλος Νικόλαος, Ιατράκης Δημήτρης, Λιαπάκης Κωνσταντίνος,Παυλίδου Στέλλα
