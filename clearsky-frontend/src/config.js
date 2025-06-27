@@ -2,7 +2,7 @@
 
 const config = {
     // Google OAuth Configuration
-    GOOGLE_CLIENT_ID: import.meta.env.VITE_GOOGLE_CLIENT_ID || '199976142604-rqvqemo7c1fkpiantvgdtendm3iomsq7.apps.googleusercontent.com',
+    GOOGLE_CLIENT_ID: import.meta.env.VITE_GOOGLE_CLIENT_ID || 'placeholder',
 
     // API Configuration
     API_BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
