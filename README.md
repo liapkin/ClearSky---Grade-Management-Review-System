@@ -9,7 +9,7 @@ ClearSky is a modern web application that streamlines grade management, review p
 ## 🏗️ Architecture
 
 ### Microservices Architecture
-The system is composed of 5 independent microservices and a React frontend:
+The system is composed of 5 independent microservices and a React frontend
 
 ## 🛠️ Technology Stack
 
